@@ -16,7 +16,7 @@ Instalación de Smart Pack For Restaurants (SPFR)
 		
 		```Link de descarga linux:``` https://github.com/Induxsoft/lowlevelprn4dkl/raw/main/build/lowlevprn-lnx-x64.zip
 		
-	-devkron.license (Si no cuenta con una licencia de devkron póngase en contacto con induxsoft)
+	- devkron.license (Si no cuenta con una licencia de devkron póngase en contacto con induxsoft)
 
 2. Ejecute el script del archivo .sql en la base de datos a utilizar para SPFR
 
