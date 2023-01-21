@@ -10,7 +10,7 @@ Instalación de Smart Pack For Restaurants (SPFR)
 		- prnsender
 		- esc_pos.dkh
 		- esc-pos-wrapper.dll
-		```Link de descarga windows:``` https://github.com/Induxsoft/lowlevelprn4dkl/raw/main/build/lowlevprn-win-x64.zip
+		##```Link de descarga windows:``` https://github.com/Induxsoft/lowlevelprn4dkl/raw/main/build/lowlevprn-win-x64.zip
 		```Link de descarga linux:``` https://github.com/Induxsoft/lowlevelprn4dkl/raw/main/build/lowlevprn-lnx-x64.zip
 		
 	-devkron.license (Si no cuenta con una licencia de devkron póngase en contacto con induxsoft)
