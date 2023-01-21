@@ -24,7 +24,7 @@ Instalación de Smart Pack For Restaurants (SPFR)
 
 4. Dentro de la carpeta web, cree una carpeta con el nombre de su IP/Host
 
-5. Coloque el contenido de SPFR_APP en la carpeta creada anteriormente
+5. Coloque el contenido de smart-pack-for-restaurants en la carpeta creada anteriormente
 
 6. Configure la conexión en el archivo config.dk 
 
