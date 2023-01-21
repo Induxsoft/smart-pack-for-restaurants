@@ -1,0 +1,21 @@
+*: /comandas/ > /dmcm/app/front/index.dkl
+*: /gestion-meseros/ > /dmcm/admin/front/index.dkl
+*: /kds/ > /kds/app/front/index.dkl
+*: /gestion-kds/ > /kds/admin/front/index.dkl
+*: /login/ > /login.dkl
+*: /session/ > /sesion.dkl
+
+*: /kds/admin/{module}/{process}/{entity} > /kds/admin/svc/index.dkl
+*: /kds/admin/{module}/{process}/{entity}/{idcprod} > /kds/admin/svc/index.dkl
+
+*: /dmcm/admin/{module}/{process}/{entity} > /dmcm/admin/svc/index.dkl
+*: /dmcm/admin/{module}/{process}/{entity}/{id_table} > /dmcm/admin/svc/index.dkl
+
+*: /kds/{module}/{process}/{entity} > /kds/app/svc/index.dkl
+*: /kds/{module}/{process}/{entity}/{idkdf} > /kds/app/svc/index.dkl
+
+*: /dmcm/{module}/{process}/{entity} > /dmcm/app/svc/index.dkl
+*: /dmcm/{module}/{process}/{entity}/{id_table} > /dmcm/app/svc/index.dkl
+
+GET: / > /index.dkl
+GET: /_css/principal.css > /dmcm/app/front/_css/principal.css

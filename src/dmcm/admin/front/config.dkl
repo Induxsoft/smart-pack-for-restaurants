@@ -1,0 +1,38 @@
+#include "dkli.dkh"
+
+#!
+module "config.dkl"
+{
+	#include "functions.dkh"
+	#include "cookies.dkl"
+
+	@path_absolute=""
+
+	if isset("@http_context")
+	{
+		if @@(@http_context,"request/headers/path_translated")!=""{@path_absolute=dir.name(@@(@http_context,"request/headers/path_translated"))+"/"}
+		else{@path_absolute=@@(@http_context,"request/headers/DOCUMENT_ROOT")+"/dmcm/admin/front/"}
+		@path_absolute=replace(@path_absolute,"\\","/")
+	}
+	
+	@path_view=path.concat(@path_absolute,"_views")
+	@path_view_admin=path.concat(@path_absolute,"")
+	@path_include=path.concat(@path_view_admin,"_include")
+
+	@styles_js=path.concat(@path_view_admin,"_js/principal.js")
+	@model_js=path.concat(@path_view_admin,"_js/model.js")
+	@views_js=path.concat(@path_view_admin,"_js/view.js")
+	@driver_js=path.concat(@path_view_admin,"_js/controller.js")
+
+	@url_origin="https://ws.induxsoft.net/"
+
+	@name_company="Induxsoft"
+	@as_company="Its work better"
+
+	@expiracion_token=1440
+	@token="" //variable global para obtener el ids del administrador
+	@end_point_service="/dmcm/admin/"
+
+	@url_entry_point_pathern="/gestion-meseros/?view=&dm_scr=&token=@token"
+
+}

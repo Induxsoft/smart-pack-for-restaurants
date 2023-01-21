@@ -1,0 +1,107 @@
+#include "dkli.dkh"
+#set "meta-xml-declaration" "<!DOCTYPE html>\r\n"
+#!
+module "index"
+{
+	#include "functions.dkh"
+	#include "serialize.dkh"
+	#include "config.dkl"
+	#include "website.dkl"
+
+	view=@@(@http_context,"request/get/view")
+
+	ref @waiter=from.json(@json)
+	ref @text_waiter=text.create()
+
+				
+
+	@idtable=@@(@http_context,"request/get/idtable")
+	@token=@@(@http_context,"request/get/dmtm_token")
+	@ws=@@(@http_context,"request/get/dm_scr")
+
+	if @use_bdconfig
+	{
+	 @ws=@@(@session_config,"connection")
+	 if view=="vw_workspace"{view=""}
+	}
+
+	if @ws=="" && (@token!="" || @token==""){view="vw_workspace"}
+	else if @token==""{view=""}
+
+	#$
+	div(style="height: 100%;")
+	{
+		#!
+
+		@module=""
+		switch view
+		{
+			case "vw_principal"{
+				@module="login"
+				include path.concat(@path_view,"vw_principal.dkl")
+			}
+			case "vw_infocuenta"{
+				@module="vw_principal"
+				include path.concat(@path_view,"vw_infocuenta.dkl")
+			}
+			case "newcommand"{
+				@module="vw_infocuenta"
+				include path.concat(@path_view,"new_command.dkl")
+			}
+			case "vw_workspace"{
+				@token=""
+				include path.concat(@path_view,"vw_workspace.dkl")
+			}
+			default
+				{
+					if not(@use_bdconfig){@module="vw_workspace"}
+					include path.concat(@path_view,"login.dkl")
+					// @http_context<"response/headers/location">:"./admin/?view=login" return
+				}
+				
+		}
+
+		 		
+
+		#!
+		#include "_views/modals.dkl"	 
+		#$
+		script
+			{
+				$'
+				var ws="#<@ws>";
+				var token="#<@token>";
+				var view_first="vw_principal";
+				var view_second="vw_infocuenta";
+				var idtable="#<@idtable>"
+				var name_addcs="__adds";
+
+				var module="#<ifstr(@module=="login" && view=="vw_principal",1,0)>";
+				#<ftext(file.rtext(@styles_js))>
+				#<ftext(file.rtext(@views_js))>
+				#<ftext(file.rtext(@model_js))>
+				#<ftext(file.rtext(@driver_js))>
+
+				var $cc="#<@@(@waiter,"cc")>";
+				var waiter_key="#<@@(@waiter,"key")>";
+				var caption="#<@@(@waiter,"caption")>";
+				var zone="#<@@(@waiter,"zone")>";
+
+				
+				const css_class_mesa="mesas";
+
+				if(token!="")
+				{
+					controller.gettoken("#<@token>");
+				}
+
+				
+
+				'
+			}
+			#!
+
+	}
+	
+	
+}

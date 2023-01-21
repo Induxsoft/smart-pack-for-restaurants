@@ -1,0 +1,40 @@
+#include "dkli.dkh"
+
+#!
+module "config.dkl"
+{
+	@id_reopen="_open"
+	@idtables="tables"
+	@idlines="fblines"
+	@idfooddbev="foodbev"
+	@idadcdmns="foodbev-adds"
+	@idwaiters="waiters"
+	@idccs="ccs"
+	@idzns="zns"
+	@idaccessmovil="accessmovil"
+	@idlogin="login"
+	@token="token"
+
+	@accept_qnames=@false
+
+
+	@path_map=""
+	@folder_map="prod_printers/"
+	if isset("@http_context")
+	{
+		if @@(@http_context,"request/headers/path_translated")!=""{@path_map=dir.name(@@(@http_context,"request/headers/path_translated"))+"/"}
+		else{@path_map=@@(@http_context,"request/headers/DOCUMENT_ROOT")+"/dmcm/app/svc/"}
+		@path_map=path.concat(@path_map,@folder_map)
+		@path_map=replace(@path_map,"\\","/")
+	}
+
+	@path_file_map=@path_map+"printers.map"
+	@id_printer_tickets="tickets"
+
+	@use_bdconfig=@false
+
+	new @session_config
+	{
+		@"connection":""
+	}
+}

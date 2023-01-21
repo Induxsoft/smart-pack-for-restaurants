@@ -1,0 +1,22 @@
+﻿#include "dkli.dkh"
+#set "meta-xml-declaration" "<!DOCTYPE html>\r\n"
+
+#!
+module "web_page"
+{
+    
+    ##
+    html
+	{
+		head
+		{
+			title{$"Devkron Web page"}
+		}
+		body
+		{
+			h1{$"Devkron"}
+			p{$"Página predeterminada deminus SPFR."}
+		}
+	}
+    ##
+}

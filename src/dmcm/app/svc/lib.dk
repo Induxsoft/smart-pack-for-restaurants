@@ -1,0 +1,1062 @@
+#include "dkli.dkh"
+#!
+module "lib.dk"
+{
+    #!
+    get.mesas::&db,&params
+    {
+        query=@list_mesa_waiter_cc
+        if @@(params,"waiter")!=""
+        {
+            query=query+" INNER JOIN agente a ON qv.IAgente=a.Sys_PK " //where a.Codigo=@waiter
+        }
+        if @@(params,"cc")!=""
+        {
+            query=query+" INNER JOIN cconsumo cc ON qv.ICConsumo=cc.Sys_PK "
+        }
+        //descomentar si a cada mesero pueda abrir la misma mesa
+        // query=query+ifstr(@@(params,"waiter")!=""," where a.Codigo=@waiter ","")
+        query=query+ifstr(@@(params,"cc")!="" && @@(params,"waiter")!=""," AND cc.Sys_PK=@cc"," where cc.Sys_PK=@cc")
+        
+        
+        ref record=record.create()
+
+        //consulta para obtener las mesas de la zona
+        ref mesas_zona=dbr.list(db,@list_mesas_zona,params)
+        for i=0;i<@count(mesas_zona)
+        {
+            ref mz=@item(mesas_zona,i)
+            new p
+            {
+                @"ag":dbr.num(db,"select sys_pk from agente where codigo=@mesero",mz)
+                @"code":@@(mz,"code")
+            }
+            ref waiter=dbr.rec(db,@waiter,p)
+            mz<"customer*">:@null
+            mz<"cc*">:@null
+            mz<"waiter*">:waiter
+
+            mz<"open_at*">:@null
+            mz<"close_at*">:@null
+            mz<"status">:0
+            mz<"reference">:""
+            mz<"notes">:""
+            mz<"balance">:0
+            mz<"owner">:@@(waiter,"nombre")
+            mz<"is_birthday">:0
+            mz<"is_celebration">:0
+            mz<"lifespan*">:@null
+            mz<"flag">:dbr.num(db,@flag,p)
+            record<@@(mz,"code")+"*">:mz
+
+        }
+
+        //consulta para obetener las mesas del mesero y del cc
+        ref mesas_waiter_cc=dbr.list(db,query,params)
+        for i=0;i<@count(mesas_waiter_cc)
+        {
+            ref itm=@item(mesas_waiter_cc,i)
+            new p
+            {
+                @"cliente":@@(itm,"#cliente")
+                @"cc":@@(itm,"#icc")
+                @"ag":@@(itm,"#ag")
+                @"code":@@(itm,"code")
+            }
+            itm<"customer*">:dbr.rec(db,@customer,p)
+            itm<"cc*">:dbr.rec(db,@cc,p)
+            itm<"waiter*">:dbr.rec(db,@waiter,p)
+            itm<"owner">:""
+            itm<"lifespan*">:get.lifespan(db,@@(itm,"sys_pk"))
+
+            ref joined_tables=split(@@(p,"code"),"+")
+            available=0
+            for j=0;j<list.count(joined_tables)
+            {
+                new pa{@"code":list.str(joined_tables,j)}
+                available=available + dbr.num(db,@available,pa)
+            }
+            if available==0{available =@@(itm,"#occupied_seats")}
+
+            itm<"available_seats">:available
+            itm<"flag">:dbr.num(db,@flag,p)
+
+            do field.remove(itm,"cliente")
+            do field.remove(itm,"icc")
+            do field.remove(itm,"ag")
+
+            record<@@(itm,"code")+"*">:itm
+        }
+
+        //lista para definir todas las mesas
+        ref lf=list.create()
+        ref lclaves=list.create_from_fields(record)
+        for i=0; i<@count(lclaves)
+        {
+            do list.add(lf,field.obj(record,list.str(lclaves,i)))
+        }
+
+        return lf
+    }
+
+    #!
+    get.ordenes::&db,&params
+    {
+        ref ordenes=dbr.list(db,@list_ordenes,params)
+
+        ref data=list.create()
+
+        for i=0;i<@count(ordenes)
+        {
+            ref rsource=@item(ordenes,i)
+            ref row=record.create()
+            using row
+            {
+                @"pkdorden":@@(rsource,"#pkdorden")
+                @"pkorden":@@(rsource,"#pkorden")
+                @"linea":@@(rsource,"#linea")
+                @"sku":@@(rsource,"sku")
+                @"sys_pk":@@(rsource,"sys_pk")
+                @"created":@@(rsource,"$sys_timeStamp")
+                @"description":@@(rsource,"$descripcion")
+                @"quantity":@@(rsource,"#cantidad")
+                @"price":aplImpuestos(@@(rsource,"#precio"),parseImpuesto(@@(rsource,"i1venta"),@zonaImpuesto),parseImpuesto(@@(rsource,"i2venta"),@zonaImpuesto),parseImpuesto(@@(rsource,"i3venta"),@zonaImpuesto),parseImpuesto(@@(rsource,"i4venta"),@zonaImpuesto))
+                @"discount":round((@@(rsource,"#d1")+@@(rsource,"#d2"))/(@@(rsource,"#precio")*@@(rsource,"#cantidad")),1)
+                @"total":aplImpuestos((@@(rsource,"#precio")*@@(rsource,"#cantidad"))-@@(rsource,"#d1")-@@(rsource,"#d2"),parseImpuesto(@@(rsource,"i1venta"),@zonaImpuesto),parseImpuesto(@@(rsource,"i2venta"),@zonaImpuesto),parseImpuesto(@@(rsource,"i3venta"),@zonaImpuesto),parseImpuesto(@@(rsource,"i4venta"),@zonaImpuesto))
+                @"notes":@@(rsource,"$especificaciones")
+                @"time":@@(rsource,"$tiempo")
+                @"adds*":dbr.list(db,@addOrdendmns,rsource)
+            }
+
+            do list.add(data,row)
+        }
+
+        return data
+    }
+
+    #!
+    get.mesa::&db,&params
+    {
+        ref mesa=dbr.rec(db,@data_mesa,params)
+        if isnull(mesa){do rise_error(99,"No se encontro datos de la mesa seleccionada.")}
+        new p
+        {
+            @"cliente":@@(mesa,"#cliente")
+            @"cc":@@(mesa,"#cc")
+            @"ag":@@(mesa,"#ag")
+            @"code":@@(mesa,"code")
+        }
+        mesa<"owner">:""
+        mesa<"customer*">:dbr.rec(db,@customer,p)
+        // mesa<"zone*">:dbr.rec(db,tolower(@zone),@@(mesa,"&customer"))
+        mesa<"cc*">:dbr.rec(db,@cc,p)
+        mesa<"waiter*">:dbr.rec(db,@waiter,p)
+        mesa<"lifespan*">:get.lifespan(db,@@(mesa,"sys_pk"))
+        params<"iventa">:@@(mesa,"sys_pk")
+
+        ref joined_tables=split(@@(p,"code"),"+")
+        available=0
+        for j=0;j<list.count(joined_tables)
+        {
+            new pa{@"code":list.str(joined_tables,j)}
+            available=available + dbr.num(db,@available,pa)
+        }
+        if available==0{available =@@(mesa,"#occupied_seats")}
+
+        mesa<"available_seats">:available
+        mesa<"flag">:dbr.num(db,@flag,p)
+
+        mesa<"orders*">:get.ordenes(db,params)
+
+        do field.remove(mesa,"cliente")
+        do field.remove(mesa,"icc")
+        do field.remove(mesa,"ag")
+        return mesa
+    }
+
+    #!
+    insert.folio::db,params
+    {
+        new folio
+        {
+            @"Sys_TimeStamp*":now()
+            @"Sys_GUID":toupper(cut(uuid(),30))
+            @"Sys_DTCreated*":now()
+            @"Cancelado":0
+            @"Sys_Exported":0
+            @"Sys_DTExported*":now()
+            @"Fecha*":now()
+            @"Folio":dbr.num(db,"SELECT ifnull(MAX(folio),0)+1 FROM foliosdocumentos WHERE BLOCK=6;",@null)
+            @"Block":6
+        }
+        do dbr.insert(db,"foliosdocumentos",folio)
+        return dbr.rec(db,@block,folio)
+    }
+    #!
+    get.referencia::serie,numsig,formato
+    {
+
+        lnum=length(numsig)
+        lserie=length(serie)
+        lformt=length(formato)
+
+        if length(lnum)>9 {return right(numsig,9) }
+
+        nformat=remove(str(formato),2,lserie)
+        // return nformat
+         num= serie+format(val(numsig),nformat)
+
+        if length(num)>9 {return right(num,9) }
+ 
+        return num 
+    }
+    #!
+    open.table::&db,&params,&data
+    {
+        do dbr.begin(db)
+        ref data_folio=insert.folio(db,params)
+        serie=dbr.str(db,@blockdoc,@null)
+        new venta
+        {
+            @"Sys_TimeStamp*":now()
+            @"Sys_GUID":toupper(cut(uuid(),30))
+            @"Sys_DTCreated*":now()
+            @"Sys_Exported*":0
+            @"Sys_DTExported*":now()
+            @"Auditado":0
+            @"Contabilizado":0
+            @"Descuento1":0
+            @"Descuento2":0
+            @"FormaPago":0
+            @"ImporteAdicional":0
+            @"Impuesto1":0
+            @"Impuesto2":0
+            @"Impuesto3":0
+            @"Impuesto4":0
+            @"referencia":get.referencia(serie,@@(data_folio,"folio"),@@(data,"format"))
+            @"dmnsMesa":@@(data,"table")
+            @"dmnsNota":@@(data,"notes")
+            @"dmnsPersonas":@@(data,"num_people")
+            @"documento":6
+            @"StatusAdministrativo":1
+            @"StatusEntrega":0
+            @"StatusFacturacion":1
+            @"StatusFinanciero":0
+            @"Subtotal":0
+            @"TipoDomicilio":0
+            @"fecha*":now()
+            @"FEmbarque*":now()
+            @"FEntrega*":now()
+            @"FLiquidacion*":now()
+            @"FUltimoCobro*":now()
+            @"TipoCambio":1
+            @"PComision":0
+            @"Vencimiento*":now()
+            @"IAgente":dbr.num(db,"SELECT sys_pk FROM agente WHERE codigo =@waiter",data)
+            @"ICConsumo":@@(data,"cc")
+            @"ICliente":dbr.num(db,"SELECT sys_pk FROM cliente WHERE codigo=@cliente",data)
+            @"IDivisa":1
+            @"IFolio":@@(data_folio,"sys_pk")
+        }
+        do dbr.insert(db,"venta",venta)
+        do dbr.commit(db)
+
+        params<"id_table">:dbr.num(db,"select max(sys_pk) from venta limit 1",@null)
+        return get.mesa(db,params)//dbr.rec(db,"select * from venta where Sys_GUID=@Sys_GUID",venta)
+
+        exception
+        {
+            if dbr.in_transaction(db){do dbr.rollback(db)}
+            do rise_error(99,last_error())
+        }
+    }
+
+    #!
+    exist.table::&db,&params,&data
+    {
+        params<"code">:@@(data,"table")
+        params<"waiter">:@@(data,"waiter")
+        idtable=dbr.str(db,@exist_table,params)
+
+        if idtable!=""{do rise_error(99,"Ya existe una mesa aún sin procesar con el número de mesa indicado_.")}
+    }
+
+    #!
+    //abre la mesa señalada en id_table
+    reopen.table::&db,&params,&data
+    {
+        new table
+        {
+            @"StatusAdministrativo":1
+        }
+        do dbr.update(db,"venta",table,"sys_pk=@id_table",params)
+        return get.mesa(db,params)
+    }
+
+    #!
+    //cierra la mesa señalada en id_table
+    close.table::&db,params,&data
+    {
+        new table
+        {
+            @"StatusAdministrativo":2
+        }
+        
+        do printer_ordertable(db,@@(params,"id_table"))
+
+        do dbr.update(db,"venta",table,"sys_pk=@id_table",params)
+        return get.mesa(db,params)
+    }
+
+    #!
+    get.lifespan::&db,sys_pk
+    {
+        new p{@"sys_pk":sys_pk}
+        return dbr.rec(db,@lifespan,p)
+    }
+
+    #!
+    get.barrs_line::&db,&item,&list_barrs
+    {
+        ref bars_line=dbr.list(db,@bars_line,item)
+        if not(isnull(bars_line))
+        {
+            for t=0;t<list.count(bars_line)
+            {
+                ref itmbl=@item(bars_line,t)
+                
+                ref vall=split(@@(itmbl,"values"),",")
+                ref lvl=list.create()
+                for s=0;s<list.count(vall)
+                {
+                    new lvsl
+                    {
+                        @"text":list.str(vall,s)
+                        @"amount":0
+                    }
+                    do list.add(lvl,lvsl)
+                }
+                itmbl<"values*">:lvl
+                do list.add(list_barrs,itmbl)
+            }
+        }
+    }
+
+    #!
+    //obtiene las barras del producto // para deminus
+    get.barrs_dmns::&db,&item,&list_barrs
+    {
+        ref bars_prod=dbr.list(db,@bars_prod,item)
+
+         if not(isnull(bars_prod))
+        {
+            for j=0;j<list.count(bars_prod)
+            {
+                ref itmb=@item(bars_prod,j)
+                // itmb<"data">:"deminus"
+                ref val=split(@@(itmb,"values"),",")
+                ref lv=list.create()
+                for s=0;s<list.count(val)
+                {
+                    new lvs
+                    {
+                        @"text":list.str(val,s)
+                        @"amount":0
+                    }
+                    do list.add(lv,lvs)
+                }
+                itmb<"values*">:lv
+                do list.add(list_barrs,itmb)
+            }
+        }
+        // do get.barrs_line(db,item,list_barrs)
+    }
+
+    #!
+    //obtiene las barras del producto //para plazamundial
+    get.bars_plazamundial::&db,&item,&list_barrs
+    {
+        ref bars_prod=dbr.list(db,@bars_prod_plazamundial,item)
+        if list.count(bars_prod)>0
+        {
+            // do rise_error(77,to.json(bars_prod))
+            for bl=0;bl<list.count(bars_prod)
+            {
+                ref data_bars=@item(bars_prod,bl)
+                ref data_json=from.json(field.dstr(data_bars,"data","{}"))
+                if not(isnull(data_json))
+                {
+                    ref options=@@(data_json,"&opciones")
+                    for o=0;o<list.count(options)
+                    {
+                        ref option=@item(options,o)
+                        ref bar_options=@@(option,"&opciones")
+                        ref lb_p=list.create()
+                        for p=0;p<list.count(bar_options)
+                        {
+                            ref itmop=@item(bar_options,p)
+                            new opv
+                            {
+                                @"text":@@(itmop,"etiqueta")
+                                @"amount":@@(itmop,"importe")
+                            }
+                            do list.add(lb_p,opv)
+                        }
+                        new bar
+                        {
+                            @"name":@@(option,"etiqueta")
+                            @"required":@@(option,"requerido")
+                            @"type":"single"
+                            @"values*":lb_p
+                            // @"data":"plazamundial"
+                        }
+                        do list.add(list_barrs,bar)
+                    }
+
+                    ref addic=@@(data_json,"&adicionales")
+                    ref list_adc=list.create()
+                    
+                    for l=0;l<list.count(addic)
+                    {
+                        ref adc=@item(addic,l)
+                        new dadic
+                        {
+                            @"text":@@(adc,"etiqueta")
+                            @"amount":@@(adc,"importe")
+                        }
+                        do list.add(list_adc,dadic)
+                    }
+                    new ad
+                    {
+                        @"name":"__adds"
+                        @"type":"multiple"
+                        @"required":@false
+                        @"values*":list_adc
+                    }
+                    do list.add(list_barrs,ad)
+                }
+
+            }
+            
+        }
+        // do get.barrs_line(db,item,list_barrs)
+    }
+    #!
+    //obtiene todas los centros de produccion y todas las lineas siempre y cuando los párametros prodc y line esten vacíos
+    //prodc diferente a vacío se filtra 
+    //line diferente a vacío se filtra
+    get.foodbev::&db,&params
+    {
+        // do rise_error(99,"akii")
+        query=@foodbev
+        prodc=@@(params,"prodc")
+        line=@@(params,"line")
+
+        if @@(params,"prodc")!=""
+        {
+            query=query +" and q.ICentrosProduccion=@prodc"
+        }
+        if line!=""
+        {
+            query=query + ifstr(prodc!=""," and q.ILinea=@line"," and q.ILinea=@line")
+        }
+        ref foodbev=dbr.list(db,query,params)
+
+        ref list_foodbev=list.create()
+
+        ref linea=dbr.rec(db,@line,params)
+        for i=0;i<@count(foodbev)
+        {
+            ref item=@item(foodbev,i)
+            ref dataline=dbr.rec(db,@line,item)
+
+            ref list_barrs=list.create()
+
+            ref options=record.create()
+
+            switch @PrioridadBarras
+            {
+                case 0
+                    {
+                        do get.barrs_dmns(db,item,list_barrs)
+                        do get.barrs_line(db,item,list_barrs)
+                    }
+                case 1
+                    {
+                        do get.bars_plazamundial(db,item,list_barrs)
+                        do get.barrs_line(db,item,list_barrs)
+                    }
+                case 2
+                    {
+                        do get.barrs_dmns(db,item,list_barrs)
+                        do get.bars_plazamundial(db,item,list_barrs)
+                        do get.barrs_line(db,item,list_barrs)
+                    }
+            }
+
+            // options<"bars*">:list_barrs
+            new data_foodbev
+            {
+                @"pkprod":@@(item,"pkprod")
+                @"sku":@@(item,"sku")
+                @"sys_pk":@@(item,"sys_pk")
+                @"description":@@(item,"description")
+                @"price":aplImpuestos(@@(item,campoPrecioR5(@PrecioVenta)),parseImpuesto(@@(item,"i1venta"),@zonaImpuesto),parseImpuesto(@@(item,"i2venta"),@zonaImpuesto),parseImpuesto(@@(item,"i3venta"),@zonaImpuesto),parseImpuesto(@@(item,"i4venta"),@zonaImpuesto))
+                @"unit":@@(item,"unit")
+                @"line*":dataline
+                @"options*":list_barrs
+                @"desc_cp":@@(item,"desc_cp")
+                @"desc_cc":@@(item,"desc_cc")
+                @"cod_cp":@@(item,"cod_cp")
+                @"cod_cc":@@(item,"cod_cc")
+            }
+            do list.add(list_foodbev,data_foodbev)
+        }
+        
+        new datafood
+        {
+            @"line*":linea
+            @"foodbev*":list_foodbev
+        }
+        // if @@(params,"#array")
+        // {
+        //     return datafood
+        // }
+        return datafood
+
+    }
+
+    #!
+    get.lines::&db,&params
+    {
+        if trim(@@(params,"prodc"))!=""
+        {
+            return dbr.list(db,@lines_x_prodc,params)
+        }
+        return dbr.list(db,@all_lines,params)
+    }
+
+    #!
+    get.prodc_x_cc::&db,&params
+    {
+        return dbr.list(db,@prodc_x_cc,params)
+    }
+
+    #!
+    data.foodbev::&db,&params
+    {
+        query=@foodbev +" where q.sys_pk=@_key"
+        ref item=dbr.rec(db,query,params)
+        new data_foodbev
+        {
+            @"sku":@@(item,"sku")
+            @"sys_pk":@@(item,"sys_pk")
+            @"description":@@(item,"description")
+            @"price":aplImpuestos(@preciocc,parseImpuesto(@@(item,"i1venta"),@zonaImpuesto),parseImpuesto(@@(item,"i2venta"),@zonaImpuesto),parseImpuesto(@@(item,"i3venta"),@zonaImpuesto),parseImpuesto(@@(item,"i4venta"),@zonaImpuesto))
+            @"unit":@@(item,"unit")
+        }
+        return data_foodbev
+    }
+
+    #!
+    get.adds.dmns::&db,params
+    {
+        ref adcs=dbr.list(db,@adcs_dmns,params)
+
+        ref list_adcs=list.create()
+
+        for i=0;i<list.count(adcs)
+        {
+            ref itm=@item(adcs,i)
+            new ad
+            {
+                @"text":@@(itm,"text")
+                @"sku":@@(itm,"sku")
+                @"amount":aplImpuestos(@@(itm,campoPrecioAdcR5(@PrecioAdcs)),parseImpuesto(@@(itm,"i1venta"),@zonaImpuesto),parseImpuesto(@@(itm,"i2venta"),@zonaImpuesto),parseImpuesto(@@(itm,"i3venta"),@zonaImpuesto),parseImpuesto(@@(itm,"i4venta"),@zonaImpuesto))
+            }
+            do list.add(list_adcs,ad)
+        }
+
+        new adc
+        {
+            @"name":"__adds"
+            @"type":"multiple"
+            @"required":@false
+            @"values*":list_adcs
+        }
+        return adc
+    }
+
+    #!
+    dataventa::&db,&params
+    {
+        new p{@"id_table":@@(params,"id_table")}
+        return dbr.rec(db,@dataventa,p)
+    }
+    #!
+    execute.command::&db,&params,&postData
+    {
+        ref details=@@(postData,"&details")
+        postData<"id_table">:@@(params,"$id_table")
+
+        ref dic_orders=record.create()
+        for i=0;i<@count(details)
+        {
+            ref itm_details=@item(details,i)
+            ref prodcenter=@@(itm_details,"&prodcenter")
+
+            clave=trim(@@(prodcenter,"code"))+"|"+str(@@(itm_details,"#time"))
+            
+            dic_orders<clave+"*">:get.Details(db,clave,itm_details,dic_orders,postData)
+
+        }
+        do dbr.begin(db)
+            do insert.ordenDorden(db,details,dic_orders)
+            do updateinsert.ventaDventa(db,postData)
+        do dbr.commit(db)
+
+        new p{@"id_table":@@(params,"$id_table")}
+        return dbr.rec(db,@dataventa,p)
+
+        exception
+        {
+            if dbr.in_transaction(db){do dbr.rollback(db)}
+            do rise_error(99,last_error())
+        }
+    }
+
+    #!
+    get.Details::&db,clave,&itm_details,&dic_orders,&postData
+    {
+
+        ref sku=@@(itm_details,"&sku")
+        ref order=record.create()
+        ref list_dorden=list.create()
+        ref dorden=table.dorden(db,itm_details,postData)
+        if not(isnull(@@(dic_orders,"&"+clave)))
+        {
+            ref data=@@(dic_orders,"&"+clave)
+            ref details=@@(data,"&dorden")
+            key=@@(sku,"$sys_pk")+"|"+str(get.subtotalImpuesto(@@(itm_details,"#price"),@false))
+            flag=@false
+            for i=0;i<@count(details)
+            {
+                ref or=@item(details,i)
+                keyn=@@(or,"$iproducto")+"|"+@@(or,"$precio")
+                
+                if(key==keyn)
+                {
+                    flag=@true
+                    or<"cantidad">:@@(or,"#cantidad")+@@(itm_details,"#quantity")
+                }
+                do list.add(list_dorden,or)
+            }
+            if not(flag)
+            {
+                do list.add(list_dorden,dorden)
+            }
+            
+        }
+        else
+        {
+            do list.add(list_dorden,dorden)
+        }
+        order<"orden*">:table.order(db,itm_details,postData)
+        order<"dorden*">:list_dorden
+        return order
+    }
+
+    #!
+    table.order::&db,&itm_details,&postData
+    {
+        ref now=now()
+        ref prodc=@@(itm_details,"&prodcenter")
+        new p{@"ag":@@(postData,"waiter")}
+
+        ref waiter=dbr.rec(db,@waiter,p)
+        ref dataprodc=dbr.rec(db,@prodc,prodc)
+
+        ref sku=@@(itm_details,"&sku")
+        using p{
+            @"sys_pk":@@(sku,"#sys_pk")
+            @"cc":@@(sku,"cod_cc")
+        }
+
+        ref cc=dbr.rec(db,@ccxcode,p)
+        ref product=dbr.rec(db,@prod,p)
+        ref venta=dataventa(db,postData)
+        new order
+        {
+            @"Sys_TimeStamp*":now
+            @"Sys_GUID":toupper(cut(uuid(),30))
+            @"Sys_DTCreated*":now
+            @"Sys_DTExported*":now
+            @"Auditada":0
+            @"CDirecto":0
+            @"CIndirecto":0
+            @"CManoObra":0
+            @"CMaquinaria":0
+            @"Contabilizada":0
+            @"D1":0
+            @"D2":0
+            @"fecha*":now
+            @"FPrevista*":now
+            @"FProduccion*":now
+            @"Hora*":now
+            @"HPrevista*":now
+            @"HProduccion*":now
+            @"Importe":get.subtotalImpuesto(@@(itm_details,"#price"),@false)
+            @"notas":@@(itm_details,"$notes")
+            @"Referencia":toupper(uuid())
+            @"Status":0
+            @"TiempoProduccion":0
+            @"TiempoServicio":@@(itm_details,"#time")
+            @"TipoCambio":1
+            @"IAgente":@@(waiter,"sys_pk")
+            @"ICConsumo":@@(cc,"#sys_pk")
+            @"ICProduccion":@@(dataprodc,"#sys_pk")
+            @"IDivisa":@@(product,"#idivisa")
+            @"IVenta":@@(venta,"#sys_pk")
+        }
+        return order
+    }
+
+    #!
+    table.dorden::&db,&itm_details,&postData
+    {
+        ref list_dorders=list.create()
+        ref sku=@@(itm_details,"&sku")
+        new p{@"sys_pk":@@(sku,"#sys_pk")}
+
+        ref product=dbr.rec(db,@prod,p)
+
+        ref now=now()
+        new dorden
+        {
+            @"Sys_TimeStamp*":now
+            @"Sys_GUID":toupper(cut(uuid(),30))
+            @"Sys_DTCreated*":now
+            @"Sys_DTExported*":now
+            @"Cantidad":@@(itm_details,"#quantity")
+            @"CDirecto":0
+            @"CIndirecto":0
+            @"CManoObra":0
+            @"CMaquinaria":0
+            @"D1":0
+            @"D2":0
+            @"TiempoProduccion":0
+             @"Especificaciones":@@(itm_details,"$notes")
+            @"Precio":get.subtotalImpuesto(@@(itm_details,"#price"),@false)
+            @"TiempoServicio":@@(itm_details,"#time")
+            @"TipoCambio":1
+            @"IDivisa":@@(product,"#idivisa")
+            @"IProducto":@@(product,"#sys_pk")
+            //@"FK_Orden_Detalle":1
+        }
+        dorden<"adds*">:get.adds(db,@@(itm_details,"&options"))
+        return dorden
+    }
+
+    //subtotal con impuesto //ismp define si retorna el impuesto
+    get.subtotalImpuesto::subtotal,isImp
+    {
+        if isImp
+        {
+            return round(subtotal * @tasa_iva,@DecimalesEnImportes)
+        }
+        return round(subtotal / (1+@tasa_iva),@DecimalesEnImportes)
+    }
+    #!
+    get.adds::&db,&options
+    {
+        ref list_adds=list.create()
+
+        for i=0;i<list.count(options)
+        {
+            ref op=@item(options,i)
+            ref values=@@(op,"&values")
+            for j=0;j<list.count(values)
+            {
+                ref val=@item(values,j)
+                if trim(@@(val,"sku"))!=""
+                {
+                    ref prod=dbr.rec(db,@dataadds,val)
+                    ref now=now()
+                    new adds
+                    {
+                        @"Sys_TimeStamp*":now
+                        @"Sys_GUID":toupper(cut(uuid(),30))
+                        @"Sys_DTCreated*":now
+                        @"Sys_DTExported*":now
+                        @"Cantidad":1
+                        @"CDirecto":0
+                        @"CIndirecto":0
+                        @"CManoObra":0
+                        @"CMaquinaria":0
+                        @"Precio":get.subtotalImpuesto(@@(val,"#amount"),@false)
+                        @"IProducto":@@(prod,"#sys_pk")
+                    }
+                }
+                else
+                {
+                    new adds
+                    {
+                        @"notes":@@(op,"name")+":"+@@(val,"text")+";"
+                    }
+                }
+                do list.add(list_adds,adds)
+            }
+            
+        }
+        return list_adds
+    }
+
+    #!
+    //inserta datos correspondientes a la tabla orden y de dorden
+    insert.ordenDorden::&db,&params,&data
+    {
+        ref listcvs=list.create_from_fields(data)
+        for i=0;i<list.count(listcvs)
+        {
+            clv=list.str(listcvs,i)
+            ref ordenes=@@(data,"&"+clv)
+            ref orden=@@(ordenes,"&orden")
+
+            do dbr.insert(db,"orden",orden)
+
+            sys_pk=dbr.num(db,@getordennew,orden)
+            ref dorden=@@(ordenes,"&dorden")
+            importe=0
+           
+            for j=0;j<list.count(dorden)
+            {
+                ref norden=@item(dorden,j)
+                importe=importe + @@(norden,"#precio")
+                norden<"FK_Orden_Detalle">:sys_pk
+                ref adds=@@(norden,"&adds")
+
+                if field.exist(norden,"adds"){do field.remove(norden,"adds")}
+                
+                do dbr.insert(db,"dorden",norden)
+            
+                especifications=""
+                if list.count(adds)>0
+                {
+                    for a=0;a<list.count(adds)
+                    {
+                        ref add=@item(adds,a)
+                        if trim(@@(add,"notes"))!=""
+                        {
+                            especifications=especifications + @@(add,"notes")
+                        }
+                        else
+                        {
+                            sys_pkad=dbr.num(db,@datadorden,norden)
+                            add<"FK_DOrden_Adicionales">:sys_pkad
+                            do dbr.insert(db,"dadicionales",add)
+                        }
+                    }
+                }
+                if especifications!=""{
+                    new espe{@"Especificaciones":ifstr(@@(norden,"$Especificaciones")!="",@@(norden,"$Especificaciones")+";","")+especifications}
+                    do dbr.update(db,"dorden",espe,"sys_guid=@sys_guid",norden)
+                }
+                
+            }
+           
+            new im{@"importe":importe}
+            do dbr.update(db,"orden",im,"sys_guid=@sys_guid",orden)
+
+            do printer_command(db,@@(orden,"$sys_guid"))
+        }
+        exception
+        {
+            do rise_error(99,last_error())
+        }
+    }
+    // **********************functions printer****************************
+    #!
+    get.map::
+    {
+        if not(file.exists(@path_file_map)){do rise_error(99,"No se encontro el archivo .map en: "+@path_file_map)}
+
+        textmap=file.rtext(@path_file_map)
+        ref jsonmap=from.json(textmap)
+        return jsonmap
+    }
+
+    #!
+    printer_command::&db,sys_guid
+    {
+        ref jsonmap=get.map()
+
+        new g{@"sys_guid":sys_guid}
+        ref dataorden=dbr.rec(db,@getorden_xsys_guid,g)
+
+        cprod=@@(dataorden,"$code")
+        if @@(jsonmap,cprod)==""{return}
+
+        new order_data
+        {
+            @"database*":db
+            @"order_guid":sys_guid
+            @"printer":path.concat(@path_map,@@(jsonmap,cprod))//"el archivo .jsn de impresora que le corresponda"
+        }
+        
+        do runscript("print_order.dkl","order_data",order_data)
+    }
+
+    #!
+    printer_ordertable::&db,idtable
+    {
+        ref jsonmap=get.map()
+
+        cprod=@id_printer_tickets
+        if @@(jsonmap,cprod)==""{return}
+
+        new table_data
+        {
+            @"database*":db
+            @"id_table":idtable
+            @"printer":path.concat(@path_map,@@(jsonmap,cprod))//"el archivo .jsn de impresora que le corresponda"
+        }
+        do runscript("print_ordertable.dkl","table_data",table_data)
+    }
+    // **********************************************************
+
+    #!
+    updateinsert.ventaDventa::&db,&postData
+    {
+        // do dbr.begin(db)
+            do update.totales(db,postData)
+        // do dbr.commit(db)
+
+        exception
+        {
+            // if dbr.in_transaction(db){do dbr.rollback(db)}
+            do rise_error(99,last_error())
+        }
+    }
+
+    #!
+    //actualiza los totales(venta y dventa)
+    update.totales::&db,&postData
+    {
+        ref now=now()
+        new p{@"id_table":@@(postData,"id_table")}
+        ref dataVenta=dbr.rec(db,@dataventa,p)
+
+        //eliminar todos datos de dventa de acuerdo a la mesa(venta) clase=2
+        do dbr.execute(db,@deletedventa,dataVenta)
+
+        new dventa
+        {
+            @"Sys_TimeStamp*":now
+            @"Sys_DTCreated*":now
+            @"Sys_DTExported*":now
+            @"Factor":1
+            @"Impuesto1":0
+            @"Impuesto2":0
+            @"Impuesto4":0
+            @"Status":1
+            @"TipoCambio":1
+            @"IAlmacen":1
+            @"FK_Venta_Detalle":@@(dataVenta,"#sys_pk")
+        }
+        ref dtventa=dbr.list(db,@getdorden,dataVenta)
+        for i=0;i<list.count(dtventa)
+        {
+            ref dv=@item(dtventa,i)
+            using dventa
+            {
+                @"Sys_GUID":toupper(cut(uuid(),30))
+                @"cantidad":@@(dv,"#cantidad")
+                @"precio":@@(dv,"#precio")
+                @"iproducto":@@(dv,"iproducto")
+                @"XFacturar":@@(dv,"#cantidad")
+                @"XSalir":@@(dv,"#cantidad")
+                @"unidad":"PZA"
+                @"Descuento1":@@(dv,"#d1")
+                @"Descuento2":@@(dv,"#d2")
+            }
+            dventa<@campo_iva>:get.subtotalImpuesto(@@(dv,"#precio"),@true) * @@(dv,"#cantidad")//@@(dv,"#precio") * @tasa_iva
+            do dbr.insert(db,"dventa",dventa)
+        }
+
+        ref totales=dbr.rec(db,@totaldventa,dataVenta)
+        totales<"sys_pk">:@@(dataVenta,"#sys_pk")
+        //se va a actualizar con sql directo primero meterlo en dventa ,despues actualizar los totales
+        do dbr.execute(db,@updateventa,totales)
+    }
+
+    #!
+    update.order::&db,&postData
+    {
+        quantity=@@(postData,"#quantity")
+
+        new p{@"id_table":@@(postData,"id_table")}
+        ref dataVenta=dbr.rec(db,@dataventa,p)
+        new data
+        {
+            @"id_table":@@(dataVenta,"sys_pk")
+            @"producto":@@(postData,"producto")
+            @"pkdorden":@@(postData,"pkdorden")
+        }
+        quantity=1
+        ref dorden=dbr.rec(db,@getdorden_prod,data)
+
+        using data{@"pkorden":@@(dorden,"pkorden")}
+        quantitycurrent=@@(dorden,"#cantidad")
+        using data{@"cantidad":quantitycurrent - quantity}
+        using data{@"i3":get.subtotalImpuesto(@@(dorden,"#precio"),@true) * @@(data,"#cantidad")}
+        
+        // do rise_error(00,to.json(data))
+        do dbr.begin(db)
+            if(quantitycurrent>quantity)
+            {
+                //update
+                do dbr.execute(db,@updatedorden,data)
+                do dbr.execute(db,ftext(@updatedvt),data)
+            }
+            else
+            {
+                // delete ordden where pkorden=@pkorden
+                do dbr.execute(db,@deleteadds,data)
+                do dbr.execute(db,@deletedorden,data)
+                if dbr.num(db,@countdorden,data)==0{do dbr.execute(db,@delete_orden,data)} 
+
+                ref dv=dbr.rec(db,@getquantitydv,data)
+                cantidadv=@@(dv,"#cantidad")
+
+                if cantidadv > 1
+                {
+                    using data
+                    {
+                        @"cantidad":cantidadv - 1
+                        @"i3":get.subtotalImpuesto(@@(dv,"#precio"),@true) * cantidadv
+                    }
+                    do dbr.execute(db,@updatedvt,data)//
+                }else{
+                    do dbr.execute(db,@deletedvt,data)
+                }        
+                
+            }
+            ref totales=dbr.rec(db,@totaldventa,dataVenta)
+            totales<"sys_pk">:@@(dataVenta,"#sys_pk")
+            //actualizar los totales
+            do dbr.execute(db,@updateventa,totales)
+        do dbr.commit(db)
+
+        postData<"id_table">:@@(dataVenta,"sys_pk")
+        ref data_order=get.mesa(db,postData)
+        return data_order
+
+        exception
+        {
+            if dbr.in_transaction(db){do dbr.rollback(db)}
+            do rise_error(99,last_error())
+        }
+    }
+    // ********************************************************
+
+}

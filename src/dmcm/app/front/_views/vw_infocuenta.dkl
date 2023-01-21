@@ -1,0 +1,122 @@
+#include "dkli.dkh"
+#!
+module "infocuenta"
+{
+	id_table=@@(@http_context,"request/get/id_table")
+	idt=@@(@http_context,"request/get/idt")
+	if idt!="" && id_table==""{id_table=idt}
+	#$
+	div(class="container-all")
+	{
+		#!
+		include path.concat(@path_include,"navbar.dkl")
+		#$
+		div(class="container")
+		{
+			$""
+			div(class="card card-info" id="card-info" style="padding:0px;display:block;")
+			{
+				div(class="body-info")
+				{
+					$""
+					
+					div(class="info-total" style="background-color:#FFF;")
+					{
+						$""
+						
+						div(class="d-flex div-footer" style="height: 100%;")
+						{
+							div(class="")
+							{
+								h3(id="name_table" style="height: 10%;"){"---"}br{}
+								label{""label(id="lblticket"){"---"} }
+							}
+							
+							div(class="mt-2 just-mgn-4 d-flex just-cont-end just-itm-center" ){""h3(id="lbltotal" style="color:var(--purple);"){"$ 0.00"} }
+						}
+					}
+					div(class="card cmmd-account" style="margin-top:8px;background-color:#FFF;")
+					{
+						$""
+						
+						div(class="row-grid")
+						{
+							// button(class="btn "){div(class="div-img"){img(width="32" height="32" src="_icons/data2.png"){""}}"Datos de mesa"}
+							// button(class="btn "){ img(width="32" height="32" src="_icons/change.png"){""} "Cambiar"}
+							
+							// button(class="btn "){ img(width="32" height="32" src="_icons/cortesia1.png"){""} "Cortesía"}
+							// button(class="btn "){ img(width="32" height="32" src="_icons/money.png"){""} "Cobrar"}
+							// button(class="btn "){ img(width="32" height="32" src="_icons/plus.png"){""} "Facturar"}
+							button(class="btn " id="new_command"){
+								svg(xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-file-text-fill" viewBox="0 0 16 16"){
+									path(d="M12 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM5 4h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1 0-1zm-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zM5 8h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1 0-1zm0 2h3a.5.5 0 0 1 0 1H5a.5.5 0 0 1 0-1z")
+								}
+								"Nueva comanda"
+							}
+							//button(class="btn " id="message"){div(class="div-img"){img(width="32" height="32" src="_icons/chat.png"){""}}"Mensaje"}
+							button(class="btn " id="imp_close"){
+								div(class="div-img"){
+									svg(xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-lock-fill" viewBox="0 0 16 16"){path(d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z")}
+								}
+								"Imp/Cerrar"
+							}
+							button(class="btn " id="re_print"){
+								div(class="div-img"){
+									svg(xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-printer-fill" viewBox="0 0 16 16"){
+										path(d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2H5zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1z")
+										path(d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2V7zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z")
+									}
+								}
+								"Reimprimir"
+							}
+						}
+					}
+					div(class="mt-2 div-table" style="padding:16px;margin-top:8px;height: 70%;background-color:#FFF;")
+					{
+						$""
+						div(style="overflow:auto;height: 100%;")
+						{
+							table(class="table-1" border="1")
+							{
+								// thead
+								// {
+								// 	tr{
+								// 		th{"Cant."}
+								// 		th{"Descripción"}
+								// 		th(style="width:90px;"){"Importe"}
+								// 	}
+								// }
+								tbody(class="ordenes")
+								{
+									tr{
+										td{"...."}
+										td{"...."}
+										td{"...."}
+									}
+									
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	#!
+	if id_table!=""
+	 {
+	 	#$
+	 	script
+	 	{
+	 		$'
+	 			$(document).ready(function(){
+	 				controller.get_table("#<id_table>");
+	 				event.hide_loading();
+	 			});
+	 			
+	 		'
+	 	}
+	 	#!
+	 }
+	
+}

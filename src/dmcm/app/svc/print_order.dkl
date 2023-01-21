@@ -1,0 +1,102 @@
+#include "dkli.dkh"
+#!
+program
+{
+	#include "functions.dkh"
+	#include "serialize.dkh"
+	#include "dbr.dkh"
+	#include "esc_pos.dkh"
+
+	ref data=@order_data
+	ref fecha_hoy=now()
+	
+	ref db=@@(data,"&database")
+
+
+	 query_desc="select dad.sys_pk as spk, dad.sys_timestamp as tim,dad.sys_dtcreated as creat,dad.sys_dtexported as expor,dad.cantidad as cantida,
+			dad.precio as precio,dad.iproducto as product, dad.fk_dorden_adicionales as fk_dorden,producto.codigo as codigo,producto.descripcion as descripcion from dadicionales as dad  
+			inner join producto on producto.sys_pk = dad.iproducto
+			where dad.iproducto=@sys_pk"
+
+	 new t{@"sys_pk":@@(data,"sys_pk")}
+     ref list_producto=dbr.list(db,query_desc,t)
+
+
+	query="select producto.codigo AS sku,producto.sys_pk,producto.ilinea as linea,dorden.sys_pk as pkdorden,dorden.fk_orden_detalle AS pkorden, dorden.sys_timestamp, 
+                        dorden.cantidad,producto.descripcion,dorden.especificaciones,dorden.precio,dorden.d1,dorden.d2,dorden.tiemposervicio as tiempo, 
+                        cfgimpuesto.i1venta,cfgimpuesto.i2venta,cfgimpuesto.i3venta,cfgimpuesto.i4venta  from (dorden inner join (orden inner join 
+                        venta on orden.iventa=venta.sys_pk) on dorden.fk_orden_detalle=orden.sys_pk) 
+                        inner join (producto inner join cfgimpuesto on producto.impuestos=cfgimpuesto.sys_pk) on dorden.iproducto=producto.sys_pk where orden.sys_guid=@order_guid"
+
+     if isnull(data){do rise_error(99,"Párametros imcompletos.")}
+     if isnull(db){do rise_error(99,"Falta una conexión a la base de datos.")}
+
+	
+	 new t{@"order_guid":@@(data,"order_guid")}
+     ref list_dorden=dbr.list(db,query,t)
+
+
+	do escpos.centeralign()
+	do escpos.set.styles(128)
+	do escpos.printline("Hola ")
+	do escpos.printline("Saludos")
+	do escpos.printline("bienvenido...")
+	do escpos.set.styles(0)
+	do escpos.printline("")
+	do escpos.leftalign()
+	do escpos.printline("Orden: 00001         Date: "+ date_str(fecha_hoy,"dd/MMM/yyyy hh:mm:ss"))
+	do escpos.printline("")
+	do escpos.printline("")
+
+	// do escpos.leftalign("")
+	// do escpos.printline("producto: "+("$sku"))
+	// do escpos.printline("cantidad: "+("$cantida"))
+	// do escpos.printline("precio: "+("$precio"))
+	// do escpos.printline("Codigo: "+("codigo"))
+	// do escpos.printline("Descripcion: "+("$descripcion"))
+
+ 	// do escpos.leftalign()
+	// do escpos.set.styles(0)
+	// for i=0;i<@count(list_dorden)
+ 	// {
+ 	// 	ref itm=@item(list_dorden,i)
+ 	// 	do escpos.printline(@@(itm,"$cantidad")+" "+@@(itm,"$descripcion")+"-----------$ "+@@(itm,"$precio"))
+	// 	do escpos.printline("")
+
+ 	// }
+
+	
+	do escpos.leftalign()
+	for i=0;i<@count(list_dorden)
+ 	{
+ 		ref itm=@item(list_dorden,i)
+		do escpos.printline(@@(itm,"$descripcion")+"     "+@@(itm,"$cantidad      ")+"    PZA")
+		do escpos.printline("")
+		do escpos.printline("")
+
+ 	}
+
+
+	do escpos.rightalign()
+	do escpos.printline("total: $300")
+	do escpos.printline("Subtotal: $50 centavos")
+
+
+	do escpos.fullcut_afterfeed(50)
+
+ 	path_config=@@(data,"$printer")
+
+ 	if not(file.exists(path_config)){do rise_error(99,"No se encontro un archivo de configuración del cprod.")}
+
+	ref cfg=from.json(file.rtext(path_config))
+
+ 	log=printer.print(cfg)
+	do escpos.clear()
+
+	do print(log)
+ 	exception
+ 	{
+ 		// plog=path.concat(path_log,uuid()+".txt")
+ 		// do file.wtext(plog,last_error())
+ 	}
+}
