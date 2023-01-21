@@ -33,7 +33,8 @@ Instalación de Smart Pack For Restaurants (SPFR)
 	
 7. Configure el proveedor de identidades (por default esta configurado con el idp de induxsoft) puede cambiarlo en _protected/auth.dk
 	en la linea 12 ,colocando el proveedor de identidades de base de datos (dbidp.dk)
-	6.1.- si en proveedor de identidades es dbidp.dk, coloque el nombre cualificado de una conexión en el idp, en la variable dbqname 
+	
+8. si en proveedor de identidades es dbidp.dk, coloque el nombre cualificado de una conexión en el idp, en la variable dbqname 
 	
 Ejemplos para acceder :
 		Enterprise browser Android o web
