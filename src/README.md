@@ -13,6 +13,7 @@ Instalación de Smart Pack For Restaurants (SPFR)
 		- esc-pos-wrapper.dll
 		
 		```Link de descarga windows:``` https://github.com/Induxsoft/lowlevelprn4dkl/raw/main/build/lowlevprn-win-x64.zip
+		
 		```Link de descarga linux:``` https://github.com/Induxsoft/lowlevelprn4dkl/raw/main/build/lowlevprn-lnx-x64.zip
 		
 	-devkron.license (Si no cuenta con una licencia de devkron póngase en contacto con induxsoft)
@@ -38,8 +39,11 @@ Instalación de Smart Pack For Restaurants (SPFR)
 Ejemplos para acceder :
 		Enterprise browser Android o web
 		http(s)://IP/Host/comandas/
+		
 		http(s):// IP/Host/kds/
+		
 		http(s):// IP/Host/gestion-meseros/
+		
 		http(s):// IP/Host/gestion-kds/
 
 
