@@ -1,8 +1,8 @@
 Instalación de Smart Pack For Restaurants (SPFR)
 
 1. Coloque los archivos o carpetas necesarias junto a los binarios de devkron
-	-Basic Web Layer (dkl-web) 
-		-fso
+	- Basic Web Layer (dkl-web) 
+		- fso
 		-webauth.dkl
 		-website.dkl
 		Link de descarga: https://github.com/Induxsoft/dkl-web
