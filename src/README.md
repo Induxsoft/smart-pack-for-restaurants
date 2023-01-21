@@ -24,18 +24,17 @@ Instalación de Smart Pack For Restaurants (SPFR)
 
 4. Dentro de la carpeta web, cree una carpeta con el nombre de su IP/Host
 
-4.1. Coloque el contenido de SPFR_APP en la carpeta creada anteriormente
+5. Coloque el contenido de SPFR_APP en la carpeta creada anteriormente
 
-5. Configure la conexión en el archivo config.dk 
+6. Configure la conexión en el archivo config.dk 
 	5.1. coloque el nombre cualificado de una conexión en @session_config/connection
 	5.2. establezca el valor de la variable @use_bdconfig a true (para que la aplicaión tome la conexión especificada)
 	5.3. establezca el valor de la variable @accept_qnames a true (para que el servicio acepte nombres cualificado de conexión)
 	
-6. Configure el proveedor de identidades (por default esta configurado con el idp de induxsoft) puede cambiarlo en _protected/auth.dk
+7. Configure el proveedor de identidades (por default esta configurado con el idp de induxsoft) puede cambiarlo en _protected/auth.dk
 	en la linea 12 ,colocando el proveedor de identidades de base de datos (dbidp.dk)
 	6.1.- si en proveedor de identidades es dbidp.dk, coloque el nombre cualificado de una conexión en el idp, en la variable dbqname 
 	
-7. Instalar la aplicaion android que se encuentra en EBrowser
 Ejemplos para acceder :
 		Enterprise browser Android o web
 		
