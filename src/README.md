@@ -38,6 +38,7 @@ Instalación de Smart Pack For Restaurants (SPFR)
 7. Instalar la aplicaion android que se encuentra en EBrowser
 Ejemplos para acceder :
 		Enterprise browser Android o web
+		
 		http(s)://IP/Host/comandas/
 		
 		http(s):// IP/Host/kds/
