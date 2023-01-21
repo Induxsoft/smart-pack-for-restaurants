@@ -3,13 +3,13 @@ Instalación de Smart Pack For Restaurants (SPFR)
 1. Coloque los archivos o carpetas necesarias junto a los binarios de devkron
 	- Basic Web Layer (dkl-web) 
 		- fso
-		-webauth.dkl
-		-website.dkl
+		- webauth.dkl
+		- website.dkl
 		Link de descarga: https://github.com/Induxsoft/dkl-web
-	-Soporte de impresión de bajo nivel y protocolo ESC/POS para Devkron
-		-prnsender
-		-esc_pos.dkh
-		-esc-pos-wrapper.dll
+	- Soporte de impresión de bajo nivel y protocolo ESC/POS para Devkron
+		- prnsender
+		- esc_pos.dkh
+		- esc-pos-wrapper.dll
 		Link de descarga windows: https://github.com/Induxsoft/lowlevelprn4dkl/raw/main/build/lowlevprn-win-x64.zip
 		Link de descarga linux: https://github.com/Induxsoft/lowlevelprn4dkl/raw/main/build/lowlevprn-lnx-x64.zip
 		
