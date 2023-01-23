@@ -202,5 +202,23 @@ module "lista de consultas"
 
     @get.dm_kds="select cp.sys_pk,cp.codigo,cp.descripcion from dm_kds d inner join cproduccion cp on d.cproduccion=cp.sys_pk"
     @dm_kds_login="SELECT cp.sys_pk,cp.codigo,cp.descripcion,d.shortpool from dm_kds d inner join cproduccion cp on d.cproduccion=cp.sys_pk WHERE d.cproduccion=@idcprod AND d.pwd=MD5(@pwd)"
+
+    @cpro_admin="select sys_pk from cproduccion where sys_guid=@Sys_GUID"
+    @res_pwd="select pwd from dm_kds where cproduccion=@idcprod"
+    @cprod="select sys_pk from cproduccion where sys_pk=@idcprod"
     // ************************************************************************************************************
+
+    //******************************************query dmcm*********************************************************
+    @agente_mesero="select sys_pk from agente where codigo=@mesero"
+    @folio_doc="SELECT ifnull(MAX(folio),0)+1 FROM foliosdocumentos WHERE BLOCK=6;"
+    @ia_gente="SELECT sys_pk FROM agente WHERE codigo =@waiter"
+    @ic_cliente="SELECT sys_pk FROM cliente WHERE codigo=@cliente"
+    @max_venta="select max(sys_pk) from venta limit 1"
+
+    //**************************************************************************************************************
+
+
+    //****************************************dmcm admin************************************************************
+    @pk_max="select max(sys_pk) from agente"
+
 }	

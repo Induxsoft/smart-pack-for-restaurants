@@ -3,7 +3,6 @@
 *: /kds/ > /kds/app/front/index.dkl
 *: /gestion-kds/ > /kds/admin/front/index.dkl
 *: /login/ > /login.dkl
-*: /session/ > /sesion.dkl
 
 *: /kds/admin/{module}/{process}/{entity} > /kds/admin/svc/index.dkl
 *: /kds/admin/{module}/{process}/{entity}/{idcprod} > /kds/admin/svc/index.dkl

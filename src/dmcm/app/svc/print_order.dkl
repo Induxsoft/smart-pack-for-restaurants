@@ -38,15 +38,12 @@ program
 
 	do escpos.centeralign()
 	do escpos.set.styles(128)
-	do escpos.printline("Hola ")
-	do escpos.printline("Saludos")
-	do escpos.printline("bienvenido...")
 	do escpos.set.styles(0)
 	do escpos.printline("")
 	do escpos.leftalign()
-	do escpos.printline("Orden: 00001         Date: "+ date_str(fecha_hoy,"dd/MMM/yyyy hh:mm:ss"))
-	do escpos.printline("")
-	do escpos.printline("")
+	// do escpos.printline("Orden: 00001         Date: "+ date_str(fecha_hoy,"dd/MM/yyyy hh:mm:ss"))
+	// do escpos.printline("")
+	// do escpos.printline("")
 
 	// do escpos.leftalign("")
 	// do escpos.printline("producto: "+("$sku"))
@@ -71,15 +68,15 @@ program
  	{
  		ref itm=@item(list_dorden,i)
 		do escpos.printline(@@(itm,"$descripcion")+"     "+@@(itm,"$cantidad      ")+"    PZA")
-		do escpos.printline("")
-		do escpos.printline("")
+		// do escpos.printline("")
+		// do escpos.printline("")
 
  	}
 
 
 	do escpos.rightalign()
-	do escpos.printline("total: $300")
-	do escpos.printline("Subtotal: $50 centavos")
+	// do escpos.printline("total: $300")
+	// do escpos.printline("Subtotal: $50 centavos")
 
 
 	do escpos.fullcut_afterfeed(50)

@@ -7,7 +7,7 @@ module "lib.dk"
     get.code_waiter::&db
     {
 
-        sys_pk=dbr.num(db,"select max(sys_pk) from agente",@null)
+        sys_pk=dbr.num(db,@pk_max,@null)
         code="000"+str(sys_pk+1)
         if length(code)>5{code=right(code,5)}
         return code

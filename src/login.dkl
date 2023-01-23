@@ -13,6 +13,7 @@ module "login"
 	qname=""
 	message=""
 	method=toupper(@@(@http_context,"request/headers/REQUEST_METHOD"))
+	success=@@(@http_context,"request/get/success")
 
 	if method=="POST"
 	{
@@ -43,7 +44,7 @@ module "login"
 	/////////////////////////////////////////////////////////////////////////////
 
 	// error=@@(@http_context,"request/get/error")
-	success=@@(@http_context,"request/get/success")
+	
 	
 	// if error!=""{error=url_dcode(error)}
 
@@ -96,6 +97,64 @@ module "login"
 					
 					
 				}
+			}
+			script
+			{
+				$'
+
+				var access={
+					setError:function(error)
+					{
+						var er=document.querySelector("#error");
+						if(er)
+							er.innerHTML=error;
+						// setTimeout(1000,er.innerHTML="");
+					},
+					redirect:function(url)
+					{
+						window.location.href=url;
+					},
+					validate:function()
+					{
+						var user=document.querySelector("#user");
+						var pwd=document.querySelector("#pwd");
+
+						if(user.value=="")
+						{
+							access.setError("Debe ingresar un usuario");
+							return false;
+						}
+						// else if(pwd.value=="")
+						// {
+						// 	access.setError("Debe ingresar una contraseña");
+						// 	return false;
+						// }
+						return true;
+					},
+					setError:function(error="")
+					{
+						var er=document.querySelector("#error");
+						if(er)
+							er.innerHTML=error;
+						setTimeout(function(){
+							er.innerHTML="";
+						}, 4000);
+						
+					},
+					showpwd:function(e)
+					{
+						var pwd=document.querySelector("#pwd");
+						if(e.checked)
+						{
+							pwd.setAttribute("type","");
+						}else{
+							pwd.setAttribute("type","password");
+						}
+					}
+				}
+				setTimeout(access.setError, 4000);
+
+				'
 			}
 			
 		}

@@ -15,9 +15,6 @@ module "config.dkl"
 	@idlogin="login"
 	@token="token"
 
-	@accept_qnames=@false
-
-
 	@path_map=""
 	@folder_map="prod_printers/"
 	if isset("@http_context")
@@ -31,7 +28,8 @@ module "config.dkl"
 	@path_file_map=@path_map+"printers.map"
 	@id_printer_tickets="tickets"
 
-	@use_bdconfig=@false
+	@use_bdconfig=@true
+	@accept_qnames=@true
 
 	new @session_config
 	{

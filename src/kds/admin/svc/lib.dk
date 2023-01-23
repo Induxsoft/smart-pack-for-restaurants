@@ -52,7 +52,7 @@ module "lib.dk"
             {
                 new dm_kds
                 {
-                    @"cproduccion":dbr.num(db,"select sys_pk from cproduccion where sys_guid=@Sys_GUID",cprod)
+                    @"cproduccion":dbr.num(db,@cpro_admin,cprod)
                     @"pwd":md5(@@(data,"$pwd"))
                     @"shortpool":@@(data,"#shortpool")
                 }
@@ -92,7 +92,7 @@ module "lib.dk"
             if parse.bool(@@(data,"changepwd"))
             {
                 pwdbefore=@@(data,"$pwdbefore")
-                respwd=dbr.str(db,"select pwd from dm_kds where cproduccion=@idcprod",params)
+                respwd=dbr.str(db,@res_pwd,params)
                 if pwdbefore!="" && md5(pwdbefore)!=respwd && respwd!=""{do rise_error(99,"La contraseña anterior es incorrecta.")}
                 new dm_kds
                 {
@@ -104,7 +104,7 @@ module "lib.dk"
                 if respwd=="" && @@(data,"$pwd")!=""
                 {
                     using dm_kds{
-                        @"cproduccion":dbr.num(db,"select sys_pk from cproduccion where sys_pk=@idcprod",params)
+                        @"cproduccion":dbr.num(db,@cprod,params)
                     }
                     do dbr.insert(db,"dm_kds",dm_kds)
                 }
