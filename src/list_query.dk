@@ -2,6 +2,8 @@
 #!
 module "lista de consultas"
 {
+    @where=""
+
 	@flag="select d.bandera from dmnsmesa d where d.id=@code"
 
 	@available="select d.personas from dmnsmesa d where d.id=@code"
@@ -157,7 +159,8 @@ module "lista de consultas"
                             qv.notas,qv.total as 'balance','' as 'owner',0 as is_birthday,0 as is_celebration,qv.icliente as 'cliente',qv.icconsumo as 'cc',qv.iagente as 'ag',o.sys_pk pkorden
                             from qventasserviciomesa qv INNER JOIN orden o ON o.IVenta=qv.Sys_PK 
                             INNER JOIN cproduccion cp ON o.ICProduccion=cp.Sys_PK
-                            WHERE cp.Codigo=@cprod and (o.`status`=0 OR o.`status`=1 OR o.`status`=2) GROUP BY qv.sys_guid"
+                            WHERE cp.Codigo=@cprod and (o.`status`=0 OR o.`status`=1 OR o.`status`=2) #<@where> GROUP BY qv.sys_guid "
+
 
     @kdf_last_order="select count(o.sys_pk) from orden o
                     inner join cproduccion cp on cp.sys_pk=o.icproduccion

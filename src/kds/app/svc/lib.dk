@@ -19,7 +19,7 @@ module "lib.dk"
     #!
     kdf.get.ordenes::&db,&params
     {
-        ref list_commands=dbr.list(db,@kdf_tables_orders,params)
+        ref list_commands=dbr.list(db,ftext(@kdf_tables_orders),params)
 
         for i=0;i<@count(list_commands)
         {
@@ -58,11 +58,13 @@ module "lib.dk"
     #!
     kdf.get.lastorders::&db,&params
     {
+
         order=dbr.num(db,@kdf_last_order,params)
         if order<=0{return @null}
 
-        @kdf_tables_orders=@kdf_tables_orders+" and o.sys_pk>@idkdf "
+        //@kdf_tables_orders=@kdf_tables_orders+
 
+        @where=" and o.sys_pk>@idkdf"
         return kdf.get.ordenes(db,params)
     }
 

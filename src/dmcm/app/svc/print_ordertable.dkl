@@ -45,7 +45,7 @@ program
 	do escpos.set.styles(128)
 	do escpos.printline("           "+@@(data_empresa,"$varvalue")+"        ")
 	do escpos.printline("============================================")
-	do escpos.printline("Ticket: "+@@(data_orden,"$referencia")+"			 Date: "+date_str(now(),"yyyy-mm-dd"))
+	do escpos.printline("Ticket: "+@@(data_orden,"$referencia")+"			 Date: "+date_str(now(),"yyyy-MM-dd"))
 	do escpos.printline("")
 	do escpos.printline("")
 	do escpos.leftalign()

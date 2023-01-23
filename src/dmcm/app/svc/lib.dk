@@ -1010,13 +1010,26 @@ module "lib.dk"
         using data{@"cantidad":quantitycurrent - quantity}
         using data{@"i3":get.subtotalImpuesto(@@(dorden,"#precio"),@true) * @@(data,"#cantidad")}
         
-        // do rise_error(00,to.json(data))
+        
         do dbr.begin(db)
             if(quantitycurrent>quantity)
             {
+                // do rise_error(00,to.json(data))
                 //update
                 do dbr.execute(db,@updatedorden,data)
-                do dbr.execute(db,ftext(@updatedvt),data)
+                // do dbr.execute(db,ftext(@updatedvt),data)
+                ref dv=dbr.rec(db,@getquantitydv,data)
+                cantidadv=@@(dv,"#cantidad")
+
+                if cantidadv > 1
+                {
+                    using data{@"cantidad":cantidadv - 1}
+                    using data{@"i3":get.subtotalImpuesto(@@(dv,"#precio"),@true) * @@(data,"#cantidad")}
+
+                    do dbr.execute(db,ftext(@updatedvt),data)//
+                }else{
+                    do dbr.execute(db,@deletedvt,data)
+                }
             }
             else
             {

@@ -54,7 +54,7 @@ var views={
 			</button>`;
 			hour="";
 			}
-			html+=`<div class="c-command c-command_${itm.sys_pk}">
+			html+=`<div class="c-command c-command_${itm.sys_pk}" id="c-command_${itm.sys_pk}">
 			<div class="cmmd-table">Mesa: ${itm.code}</div>
 			<div class="cmmd-ticket">Ticket: ${itm.reference}</div>
 			<div class="cmmd-numorder">Num. Orden: ${itm.pkorden}</div>
@@ -82,12 +82,10 @@ var views={
 	},
 	remove_command:function(sys_pk)
 	{
-		var element=document.querySelector(".c-command_"+sys_pk);
+		var element=document.querySelector("#c-command_"+sys_pk);
 		if(element){
 			element.remove();
-			return true;
 		}
-		return false;
 	},
 	show_modal:function(idmodal)
 	{
@@ -105,7 +103,6 @@ var views={
 	{
 		var t =document.querySelectorAll("#content-commands > .c-command");
 		var element=document.querySelector("#caption-ordersAll");
-		console.log(t.length);
 		if(element)
 			element.innerHTML=t.length + " Pedidos";
 	},
