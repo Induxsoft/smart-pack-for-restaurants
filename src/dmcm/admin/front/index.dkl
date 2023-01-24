@@ -24,7 +24,7 @@ module "index.dkl"
 
 	if @use_bdconfig
 	{
-	 ws=@@(@session_config,"connection")
+	 ws=@@(@config,"connection")
 	 view=""
 	}
 
@@ -58,7 +58,6 @@ module "index.dkl"
 		{
 			$'
 			var ws="#<ws>";
-			console.log(ws);
 			var cofig_expiracion="#<@expiracion_token>";
 			#<ftext(file.rtext(@styles_js))>
 			#<ftext(file.rtext(@views_js))>

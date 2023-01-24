@@ -20,7 +20,7 @@ module "admin kds"
 
     if @use_bdconfig
 	{
-	 ws=@@(@session_config,"connection")
+	 ws=@@(@config,"connection")
 	 view=""
 	}
 

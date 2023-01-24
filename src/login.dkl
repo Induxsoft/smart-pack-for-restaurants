@@ -17,7 +17,7 @@ module "login"
 
 	if method=="POST"
 	{
-		if isset("@session_config"){qname=@@(@session_config,"connection")}
+		if isset("@config"){qname=@@(@config,"connection")}
 
 		uid=@@(@http_context,"request/post/user")
 		pwd=@@(@http_context,"request/post/pwd")

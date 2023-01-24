@@ -18,37 +18,34 @@ Instalación de Smart Pack For Restaurants (SPFR)
 		
 	- devkron.license (Si no cuenta con una licencia de devkron póngase en contacto con induxsoft)
 
-2. Ejecute el script del archivo .sql en la base de datos a utilizar para SPFR
+2. Ejecute el script del archivo dm_spfr.sql en la base de datos a utilizar para SPFR
 
 3. Configure el archivo connections.xml que se encuentra junto a los binarios de devkron
 
-4. Dentro de la carpeta web, cree una carpeta con el nombre de su IP/Host
+4. Dentro de la carpeta web, cree una carpeta con el nombre de su IP o Host
 
 5. Coloque el contenido de smart-pack-for-restaurants en la carpeta creada anteriormente
 
 6. Configure la conexión en el archivo config.dk 
 
-	- Coloque el nombre cualificado de una conexión en @session_config/connection
+	- Coloque el nombre cualificado de una conexión en @config/connection
 	
 	- Establezca el valor de la variable @use_bdconfig a true (para que la aplicaión tome la conexión especificada)
 	
 	- Establezca el valor de la variable @accept_qnames a true (para que el servicio acepte nombres cualificado de conexión)
 	
-7. Configure el proveedor de identidades (por default esta configurado con el idp de induxsoft) puede cambiarlo en _protected/auth.dk
-	en la linea 12 ,colocando el proveedor de identidades de base de datos (dbidp.dk)
-	
-8. Si en proveedor de identidades es dbidp.dk, coloque el nombre cualificado de una conexión en el idp, en la variable dbqname 
+8. Coloque el nombre cualificado de una conexión en el idp, en la variable dbqname 
 	
 Ejemplos para acceder :
 		Enterprise browser Android o web
 		
-		http(s)://IP/Host/comandas/
+		http(s)://Host/comandas/
 		
-		http(s):// IP/Host/kds/
+		http(s)://Host/kds/
 		
-		http(s):// IP/Host/gestion-meseros/
+		http(s)://Host/gestion-meseros/
 		
-		http(s):// IP/Host/gestion-kds/
+		http(s)://Host/gestion-kds/
 
 
 

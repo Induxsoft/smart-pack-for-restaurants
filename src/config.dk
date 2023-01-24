@@ -31,7 +31,7 @@ module "config.dkl"
 	@use_bdconfig=@false
 	@accept_qnames=@false
 
-	new @session_config
+	new @config
 	{
 		@"connection":""
 	}

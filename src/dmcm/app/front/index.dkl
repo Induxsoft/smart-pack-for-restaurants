@@ -21,7 +21,7 @@ module "index"
 
 	if @use_bdconfig
 	{
-	 @ws=@@(@session_config,"connection")
+	 @ws=@@(@config,"connection")
 	 if view=="vw_workspace"{view=""}
 	}
 

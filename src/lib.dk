@@ -29,6 +29,6 @@ module "lib.dk"
         }
         if qname!=""{return dbr.open(qname)}
         
-        return dbr.open(@@(@session_config,"connection"))
+        return dbr.open(@@(@config,"connection"))
     }
 }
