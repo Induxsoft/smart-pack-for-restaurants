@@ -114,11 +114,13 @@ var views={
                         quantity:1,
                         price:views.format(itm.price * 1,2,".",","),
                         adds:0,
-                        total:0
+                        total:0,
+                        _priceProd_:views.format(itm.price * 1,2,".",","),
                   }
 
-                  if(other)
-                        controller.other_equals(uuid,sys_pk);
+                  if(other){
+                         controller.other_equals(uuid,sys_pk);
+                  }
                   else
                         list_orders.push(sku);
 
@@ -169,7 +171,7 @@ var views={
             views.showTotal();
             if(other)
             {
-                  var btnacept=document.querySelector("#btn_addcs");
+                   var btnacept=document.querySelector("#btn_addcs");
                   btnacept.click();
             }
             var btnexecute=document.querySelector("#btnExecute");
@@ -237,18 +239,25 @@ var views={
             if(subtotal)
                   subtotal.innerHTML=`<h3>$ ${views.format(price,2,".",",")}</h3>`;
       },
-      show_indications:function(options,uuid)
+      show_indications:function(options,uuid,uuid_ant="")
       {
             var multiples=document.querySelector("#div-multiples");
+            if(multiples)multiples.innerHTML="";
+
             var select=document.querySelector("#div-singles");
+            if(select)select.innerHTML="";
+
             var html="";
             var html_select="";
             list_requireds=[];
+
             if(!options)
                   var options=[];
 
+
             if(options)
                   for (var a = 0;a<options.length; a++) {
+                        
                   var itm=options[a];
                   var itm_val=itm.values;
 
@@ -257,6 +266,7 @@ var views={
                   if(itm.required)
                         list_requireds.push(itm);
 
+
                   if(itm.type==="multiple")
                   {
                         for(j=0;j<itm_val.length;j++)
@@ -264,7 +274,7 @@ var views={
                               var val=itm_val[j];
                               var checked=false;
                               list_orders.forEach(function(elem,index) {
-                                    if(elem.uuid===uuid)
+                                    if(elem.uuid===uuid || elem.uuid===uuid_ant)
                                     {
                                           if(elem.options)
                                           {
@@ -292,6 +302,7 @@ var views={
                                           <input type="checkbox" ${check}="true" sku="${sku}" amount="${views.format(val.amount,2,".",",")}" id="${val.text.replace(/ /g,"")}" value="${val.text}">
                                           <label for="${val.text.replace(/ /g,"")}">${val.text}</label>
                                     </div>`;
+
                         }
                         var name="";
                         if(itm.name===name_addcs){name="Adiccional";}

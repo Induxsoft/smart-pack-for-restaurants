@@ -1010,11 +1010,11 @@ module "lib.dk"
         using data{@"cantidad":quantitycurrent - quantity}
         using data{@"i3":get.subtotalImpuesto(@@(dorden,"#precio"),@true) * @@(data,"#cantidad")}
         
-        
+        update=@false
         do dbr.begin(db)
             if(quantitycurrent>quantity)
             {
-                // do rise_error(00,to.json(data))
+                // do rise_error(99,"if")
                 //update
                 do dbr.execute(db,@updatedorden,data)
                 // do dbr.execute(db,ftext(@updatedvt),data)
@@ -1030,32 +1030,41 @@ module "lib.dk"
                 }else{
                     do dbr.execute(db,@deletedvt,data)
                 }
+
+                update=@true
             }
             else
             {
+                // do rise_error(99,"else")
                 // delete ordden where pkorden=@pkorden
                 do dbr.execute(db,@deleteadds,data)
                 do dbr.execute(db,@deletedorden,data)
                 if dbr.num(db,@countdorden,data)==0{do dbr.execute(db,@delete_orden,data)} 
 
-                ref dv=dbr.rec(db,@getquantitydv,data)
-                cantidadv=@@(dv,"#cantidad")
+                do updateinsert.ventaDventa(db,p)
 
-                if cantidadv > 1
-                {
-                    using data{@"cantidad":cantidadv - 1}
-                    using data{@"i3":get.subtotalImpuesto(@@(dv,"#precio"),@true) * @@(data,"#cantidad")}
+                // ref dv=dbr.rec(db,@getquantitydv,data)
+                // cantidadv=@@(dv,"#cantidad")
 
-                    do dbr.execute(db,ftext(@updatedvt),data)//
-                }else{
-                    do dbr.execute(db,@deletedvt,data)
-                }        
+                // if cantidadv > 1
+                // {
+                //     using data{@"cantidad":cantidadv - 1}
+                //     using data{@"i3":get.subtotalImpuesto(@@(dv,"#precio"),@true) * @@(data,"#cantidad")}
+
+                //     do dbr.execute(db,ftext(@updatedvt),data)//
+                // }else{
+                //     do dbr.execute(db,@deletedvt,data)
+                // }        
                 
             }
-            ref totales=dbr.rec(db,@totaldventa,dataVenta)
-            totales<"sys_pk">:@@(dataVenta,"#sys_pk")
-            //actualizar los totales
-            do dbr.execute(db,@updateventa,totales)
+            if update
+            {
+                 ref totales=dbr.rec(db,@totaldventa,dataVenta)
+                totales<"sys_pk">:@@(dataVenta,"#sys_pk")
+                //actualizar los totales
+                do dbr.execute(db,@updateventa,totales)
+            }
+           
         do dbr.commit(db)
 
         postData<"id_table">:@@(dataVenta,"sys_pk")

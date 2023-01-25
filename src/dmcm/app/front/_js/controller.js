@@ -304,11 +304,13 @@ var controller={
             var newsku =list_ordr;
             var data=JSON.stringify(newsku);
             var newdata=JSON.parse(data);
+            var uuid_ant=newdata.uuid;
             newdata.uuid=uuid;
             newdata.price=sku.price;
+            var newoptions=newdata.sku;
             list_orders.push(newdata);
             controller.show_modal('#modal-indicaciones');
-            views.show_indications(newdata.options,uuid);
+             views.show_indications(newoptions.options,uuid,uuid_ant);
             break;
           }
         }
@@ -402,26 +404,19 @@ var controller={
                 
               }
             }
-            // if(list_orders[index].id)
-            // {
-            //   alert("ya fue agregado");
-            //   return false;
-            // }
+        
            
-            var subtotal=Number(list_orders[index].price) + price;
-            // if(list_orders[index].adds && list_orders[index].adds==price)
-            // {
-            //   console.log("igual");
-            //   var subtotal=Number(list_orders[index].price) + price;
-            //   return false;
-            // }
-            // list_orders[index]["id"]=id;
+            var subtotal=Number(list_orders[index]._priceProd_) + price;
+            
+
             list_orders[index].price=subtotal;
             list_orders[index]["adds"]=price;
-            list_orders[index]["total"]=price;
+            list_orders[index]["total"]=list_orders[index].price + list_orders[index].adds;
             list_orders[index]["options"]=values;
             list_orders[index]["notes"]=notas.value;
             text_detail+=notas.value+",";
+
+            
 
             views.showSubTotal(id,subtotal);
 
@@ -444,6 +439,7 @@ var controller={
         else
           var indications=document.querySelectorAll(`.body-single > .div-single_${name.replace(/ /g,"")} > select`);
 
+
         var values=[];
         indications.forEach(function (elem,index) {
           if(elem.type==="checkbox")
@@ -464,6 +460,7 @@ var controller={
                   amount:0
                 };
               values.push(d);
+              // elem.checked=false;
             }
           }
           else 
@@ -473,6 +470,7 @@ var controller={
               var val=elem.options[elem.options.selectedIndex].value;
               var d={text:val};
               values.push(d);
+              // elem.options.selectedIndex=0;
             }
           }
         });
