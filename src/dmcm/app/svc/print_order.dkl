@@ -12,14 +12,20 @@ program
 	
 	ref db=@@(data,"&database")
 
+	
 
-	 query_desc="select dad.sys_pk as spk, dad.sys_timestamp as tim,dad.sys_dtcreated as creat,dad.sys_dtexported as expor,dad.cantidad as cantida,
-			dad.precio as precio,dad.iproducto as product, dad.fk_dorden_adicionales as fk_dorden,producto.codigo as codigo,producto.descripcion as descripcion from dadicionales as dad  
-			inner join producto on producto.sys_pk = dad.iproducto
-			where dad.iproducto=@sys_pk"
 
-	 new t{@"sys_pk":@@(data,"sys_pk")}
-     ref list_producto=dbr.list(db,query_desc,t)
+	//  query_desc="select dad.sys_pk as spk, dad.sys_timestamp as tim,dad.sys_dtcreated as creat,dad.sys_dtexported as expor,dad.cantidad as cantida,
+	// 		dad.precio as precio,dad.iproducto as product, dad.fk_dorden_adicionales as fk_dorden,producto.codigo as codigo,producto.descripcion as descripcion from dadicionales as dad  
+	// 		inner join producto on producto.sys_pk = dad.iproducto
+	// 		where dad.iproducto=@sys_pk"
+
+	//  new t{@"sys_pk":@@(data,"sys_pk")}
+    //  ref list_producto=dbr.list(db,query_desc,t)
+
+	query_detalle="select  orden.Sys_PK AS orde,Venta.Referencia as Refti,Venta.StatusAdministrativo AS EstadoA,Orden.ICProduccion as produc,Venta.dmnsMesa AS Mesa,venta.dmnsmesa as mesa ,agente.nombre as mesero,cproduccion.descripcion as cpdescripcion
+ 	from (orden inner join (venta left join agente on venta.iagente=agente.sys_pk) 
+	on orden.iventa=venta.sys_pk) inner join cproduccion on orden.icproduccion=cproduccion.sys_pk where orden.sys_guid=@order_guid"
 
 
 	query="select producto.codigo AS sku,producto.sys_pk,producto.ilinea as linea,dorden.sys_pk as pkdorden,dorden.fk_orden_detalle AS pkorden, dorden.sys_timestamp, 
@@ -35,22 +41,34 @@ program
 	 new t{@"order_guid":@@(data,"order_guid")}
      ref list_dorden=dbr.list(db,query,t)
 
+	 query_empresa="SELECT sys_pk,sys_guid,varvalue FROM globalvar g WHERE g.VarName='FXCA112';"
+	 ref data_empresa=dbr.rec(db,query_empresa,@null)
+
+	 ref data_detalle=dbr.rec(db,query_detalle,t)
+	 mm=""
+	 if @@(data_detalle,"$Mesa")==""&& @@(data_detalle,"#EstadoA")==1{mm="Comida Rapida"}
+	 if @@(data_detalle,"$Mesa")==""&& @@(data_detalle,"#EstadoA")==4{mm="Servicio a Domicilio"}
+	 if @@(data_detalle,"$Mesa")!=""&& @@(data_detalle,"#EstadoA")==1{mm="Servicio a Mesa"}
 
 	do escpos.centeralign()
 	do escpos.set.styles(128)
 	do escpos.set.styles(0)
 	do escpos.printline("")
 	do escpos.leftalign()
-	// do escpos.printline("Orden: 00001         Date: "+ date_str(fecha_hoy,"dd/MM/yyyy hh:mm:ss"))
-	// do escpos.printline("")
-	// do escpos.printline("")
-
-	// do escpos.leftalign("")
-	// do escpos.printline("producto: "+("$sku"))
-	// do escpos.printline("cantidad: "+("$cantida"))
-	// do escpos.printline("precio: "+("$precio"))
-	// do escpos.printline("Codigo: "+("codigo"))
-	// do escpos.printline("Descripcion: "+("$descripcion"))
+	do escpos.printline("                    "+@@(data_empresa,"$varvalue")+"        ")
+	do escpos.printline("================================================")
+	// do PrintLine("")
+	do escpos.printline("Date: " + date_str(fecha_hoy,"dd/MM/yyyy  hh:mm:ss"))
+	do escpos.PrintLine("")
+	do escpos.PrintLine("CP: "+@@(data_detalle,"$cpdescripcion"))
+	do escpos.PrintLine(mm)
+	do escpos.PrintLine("Orden: " +@@(data_detalle,"$orde"))
+	do escpos.PrintLine("Mesa: " +@@(data_detalle,"$Mesa"))
+	do escpos.PrintLine("Mesero: "+@@(data_detalle,"$mesero") )
+	do escpos.PrintLine("Ticket: "+@@(data_detalle,"$Refti"))
+	do escpos.printline("================================================")
+	
+	
 
  	// do escpos.leftalign()
 	// do escpos.set.styles(0)
@@ -63,14 +81,17 @@ program
  	// }
 
 	
+	
+
+	
 	do escpos.leftalign()
 	for i=0;i<@count(list_dorden)
  	{
  		ref itm=@item(list_dorden,i)
-		do escpos.printline(@@(itm,"$descripcion")+"     "+@@(itm,"$cantidad      ")+"    PZA")
-		// do escpos.printline("")
-		// do escpos.printline("")
+		rou=round(@@(itm,"$cantidad"),2)
+		do escpos.printline(@@(itm,"$descripcion") +"      "+ str(rou)+"       "+"PZA")
 
+			
  	}
 
 
@@ -89,6 +110,9 @@ program
 
  	log=printer.print(cfg)
 	do escpos.clear()
+
+
+	do escpos.open.cashpin2(120,240)
 
 	do print(log)
  	exception

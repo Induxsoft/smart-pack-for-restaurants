@@ -7,13 +7,13 @@ program
 	#include "dbr.dkh"
 	#include "esc_pos.dkh"
 
-	// path_log="/usr/devkron/web/sys-testbeta.induxsoft.net/log"
+	 //path_log="/usr/devkron/web/192.168.0.222/dmcm/app/svc/prod_printers/log"
 
 	ref data=@table_data
 	
 	ref db=@@(data,"&database")
 
-	query_orden="select cc.sys_pk pkcc,cc.codigo cod_cc,cc.descripcion desc_cc,a.sys_pk pkwaiter,a.codigo cod_waiter,a.nombre,v.sys_pk pktable,
+	query_orden="select v.StatusAdministrativo as estadoA,cc.sys_pk pkcc,cc.codigo cod_cc,cc.descripcion desc_cc,a.sys_pk pkwaiter,a.codigo cod_waiter,a.nombre,v.sys_pk pktable,
  v.dmnsmesa,v.descuento1 'descuento1',v.descuento2 'descuento2',v.dmnsnota 'dmnsnota',v.impuesto1 'impuesto1',v.impuesto2 'impuesto2',
 				v.impuesto3 'impuesto3',v.impuesto4 'impuesto4',v.notas 'notas',v.importeadicional 'importeadicional',v.referencia 'referencia',v.subtotal 'subtotal',
 				c.sys_pk pkcliente,c.codigo cod_cliente,c.nombre name_cliente,
@@ -35,29 +35,34 @@ program
      if isnull(db){do rise_error(99,"Falta una conexión a la base de datos.")}
 	
 	new t{@"id_table":@@(data,"id_table")}
-     
+    //do rise_error(2,to.json(t))
 	ref data_orden=dbr.rec(db,query_orden,t)
 	if isnull(data_orden){do rise_error(99,"No se encontraron datos de la orden")}
 
 	ref data_empresa=dbr.rec(db,query_empresa,@null)
 
+	// nn=""
+	// if @@(data_orden,"$dmnsMesa")=="" && @@(data_orden,"#estadoA")==1{nn="Comida Rapida"}
+	// if @@(data_orden,"$dmnsMesa")=="" && @@(data_orden,"#estadoA")==4{nn="Servicio a Domicilio"}
+	// if @@(data_orden,"$dmnsMesa")!="" && @@(data_orden,"#estadoA")==1{nn="Servicio a Mesa"}
+
 	do escpos.centeralign()
 	do escpos.set.styles(128)
 	do escpos.printline("           "+@@(data_empresa,"$varvalue")+"        ")
 	do escpos.printline("============================================")
-	do escpos.printline("Ticket: "+@@(data_orden,"$referencia")+"			 Date: "+date_str(now(),"yyyy-MM-dd"))
-	do escpos.printline("")
+	do escpos.leftalign()
+	do escpos.printline("Ticket: "+@@(data_orden,"$referencia")+"			 Date: "+date_str(now(),"yyyy-MM-dd  hh:mm:ss"))
 	do escpos.printline("")
 	do escpos.leftalign()
-	do escpos.printline("CP: "+@@(data_orden,"$desc_cp"))
-	do escpos.printline("Servicio a Mesa")
+	do escpos.printline("CP: "+@@(data_orden,"$desc_cc"))
+	//do escpos.printline(nn)
 	do escpos.printline("Mesa: "+@@(data_orden,"$dmnsMesa"))
 	do escpos.printline("Mesero: "+@@(data_orden,"$nombre"))
 	do escpos.printline("Cliente: "+@@(data_orden,"$name_cliente"))
 	do escpos.printline("============================================")
-	do escpos.printline("		-DETALLE DE SU COMPRA-  	  ")
+	do escpos.printline("		       -DETALLE DE SU COMPRA-  	  ")
 	do escpos.printline("============================================")
-	do escpos.printline("DESCRIP  			CANT  		UNID  		IMPORTE")
+	do escpos.printline("DESCRIP  			         CANT  	  UNID  	  IMPORTE")
 
 
 	ref list_dorden=dbr.list(db,query,t)
@@ -65,16 +70,20 @@ program
 	for i=0;i<@count(list_dorden)
  	{
  		ref itm=@item(list_dorden,i)
- 		do escpos.printline(@@(itm,"$descripcion")+"		"+@@(itm,"$cantidad")+"		 "+@@(itm,"$unidad")+"		$"+format(@@(itm,"$precio"),"#,#.00"))
+		rou=round(@@(itm,"$cantidad"),2)
+ 		do escpos.printline(@@(itm,"$descripcion")+"		 "+str(rou)+"		   "+@@(itm,"$unidad")+"	      $"+format(@@(itm,"$precio"),"#,#.00"))
  	}
 
  	do escpos.printline("============================================")
 	do escpos.rightalign()
-	do escpos.printline("total: $ "+format(@@(data_orden,"$total"),"#,#.00"))
 	do escpos.printline("Subtotal: $ "+format(@@(data_orden,"$subtotal"),"#,#.00"))
+	do escpos.printline("total: $ "+format(@@(data_orden,"$total"),"#,#.00"))
+	
 
 
 	do escpos.fullcut_afterfeed(50)
+
+	//do escpos.open.cashpin2(120,240)
 
  	path_config=@@(data,"$printer")
 
@@ -86,10 +95,12 @@ program
 
 	do escpos.clear()
 
+	
+
 	do print(log)
  	exception
  	{
- 		// plog=path.concat(path_log,uuid()+".txt")
- 		// do file.wtext(plog,last_error())
+ 		//  plog=path.concat(path_log,uuid()+".txt")
+ 		//  do file.wtext(plog,last_error())
  	}
 }

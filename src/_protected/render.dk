@@ -9,12 +9,11 @@ program
 	#include "webauth.dkl"
 	#include "config.dkl"
 
-	//@default_render_template=path.concat(@dklfso_protected_dir,"render/default.dk")
 
 	content_type=replace(tolower(@@(@http_context,"response/headers/content-type"))," ","")
 	request_method=toupper(@@(@http_context,'request/headers/REQUEST_METHOD'))
 	root_path=@@(@http_context,"request/headers/document_root")
-	
+
 	if isanyword(request_method,"GET") || parse.bool(@@(@http_context,"request/post/dkl_render"))
 	{
 		switch @@(@http_context,"request/get/"+@__getParameterOutputType)

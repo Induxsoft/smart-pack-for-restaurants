@@ -78,7 +78,7 @@ module "lista de consultas"
                             from qventasserviciomesa qv "
 
     @data_mesa="select qv.dmnsmesa as 'code',qv.sys_pk as 'sys_pk',qv.sys_guid as 'sys_guid',qv.referencia as 'reference',qv.statusadministrativo as 'status',qv.dmnspersonas as 'occupied_seats',
-                            qv.notas,qv.total as 'balance','' as 'owner',0 as is_birthday,0 as is_celebration,qv.icliente as 'cliente',qv.icconsumo as 'cc',qv.iagente as 'ag'
+                            qv.notas,qv.dmnsnota as 'notetable',qv.total as 'balance','' as 'owner',0 as is_birthday,0 as is_celebration,qv.icliente as 'cliente',qv.icconsumo as 'cc',qv.iagente as 'ag'
                             from qventasserviciomesa qv where qv.sys_pk=@id_table;"
 
 

@@ -10,7 +10,6 @@ var views={
       },
       print_mesas:function(data) {
             var html="";
-            // console.log(data.length)
           for (var i =0; i<data.length; i++) {
             var itm=data[i];
             html+=`<div class="${css_class_mesa} mesa_${itm.sys_pk}" onclick="controller.verify_size_window(\'${itm.sys_pk}\',\'${itm.code}\',${itm.available_seats})">
@@ -485,6 +484,15 @@ var views={
             var re_print=document.querySelector("#re_print")
             var mesa=document.querySelector(`.mesa_${data.sys_pk}`);
             var mesa_color=document.querySelector(`.mesa_color_${data.sys_pk}`);
+
+            var infvnt=document.querySelector("#info-vnt");
+            var lblnotavnt=document.querySelector("#lblnotavnt");
+
+            lblnotavnt.innerHTML=data.notetable;
+            if(infvnt && data.notetable=="")
+                  infvnt.style.height="5rem";
+            else
+                  infvnt.style.height="4rem";
 
             if(mesa)
                   if(mesa.classList.contains("table_opened"))

@@ -15,6 +15,7 @@ module "login"
 	method=toupper(@@(@http_context,"request/headers/REQUEST_METHOD"))
 	success=@@(@http_context,"request/get/success")
 
+	if @use_bdconfig && @@(@http_context,"session/user/ids")!=""{do session.logout(@@(@http_context,"session/user/ids"))}
 	if method=="POST"
 	{
 		if isset("@config"){qname=@@(@config,"connection")}

@@ -31,4 +31,12 @@ module "lib.dk"
         
         return dbr.open(@@(@config,"connection"))
     }
+
+    #!
+    session.logout::ids
+    {
+        ref db=dbr.reconnect(@@(@config,"connection"),ids)
+        do dbr.logout(db)
+        exception{}
+    }
 }

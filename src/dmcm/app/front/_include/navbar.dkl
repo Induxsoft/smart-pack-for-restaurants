@@ -9,6 +9,13 @@ div(class="nabvar")
 			namet=@@(@http_context,"request/get/n")
 			ticket=@@(@http_context,"request/get/t")
 			totalcurrent=@@(@http_context,"request/get/imp")
+
+			if @token==""
+			{
+				namet=""
+				ticket=""
+				totalcurrent=""
+			}
 			#$
 			div(class="name_waiter"){
 				h3{$"#<@name_company>"}

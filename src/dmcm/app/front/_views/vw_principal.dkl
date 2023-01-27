@@ -75,7 +75,7 @@ module "terminal de mesero"
 				{
 					$""
 					
-					div(class="info-total" style="background-color:#FFF;")
+					div(class="info-total" id="info-vnt" style="background-color:#FFF;height:4rem;")
 					{
 						$""
 						
@@ -86,8 +86,16 @@ module "terminal de mesero"
 								p(id="name_table" style="height: 10%;"){"---"}br{}
 								label{""label(id="lblticket"){"---"} }
 							}
-							
 							div(class="mt-2 just-mgn-4 d-flex just-cont-end just-itm-center" ){""h3(id="lbltotal" style="color:var(--purple);"){"$ 0.00"} }
+							
+						}
+						
+					}
+					div(id="module-nota" class="info-total" style="background-color:#FFF;height:auto;")//
+					{
+						div(class="" style="padding-left:20px;padding-right:20px")
+						{
+							p(id="lblnotavnt"){"---"}
 						}
 					}
 					div(class="card cmmd-account" style="margin-top:8px;background-color:#FFF;")

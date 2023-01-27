@@ -144,6 +144,10 @@ module "index.dkl"
 				{
 					ref data=delete.waiter(db,params)
 				}
+				else if @@(params,"entity")=="token"
+				{
+					ref data=token.logout(db,params)
+				}
 			}
 			default{
 				ref data=@null

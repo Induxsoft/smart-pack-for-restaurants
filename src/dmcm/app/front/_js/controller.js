@@ -77,6 +77,16 @@ var controller={
       },
       close_view:function(idview,params="")
       {
+        if(idview=="login")
+        {
+          var uri=`${url}pos/dinner/token/?token=${token}`;
+          model.invoke_service(uri,null,function(data) {
+            token="";
+          },
+          function(error) {
+            alert(error.message);
+          },"PUT",false);
+        }
         if(token!="")
           params+="&dmtm_token="+token;
         if(ws!="" && idview!="vw_workspace")

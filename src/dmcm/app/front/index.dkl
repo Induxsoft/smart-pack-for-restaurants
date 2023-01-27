@@ -28,6 +28,9 @@ module "index"
 	if @ws=="" && (@token!="" || @token==""){view="vw_workspace"}
 	else if @token==""{view=""}
 
+	// if @use_bdconfig && @@(@http_context,"session/user/ids")==""{view=""}
+	if not(@use_bdconfig){view="vw_workspace"}
+
 	#$
 	div(style="height: 100%;")
 	{
@@ -54,9 +57,8 @@ module "index"
 			}
 			default
 				{
-					if not(@use_bdconfig){@module="vw_workspace"}
+					@token=""
 					include path.concat(@path_view,"login.dkl")
-					// @http_context<"response/headers/location">:"./admin/?view=login" return
 				}
 				
 		}

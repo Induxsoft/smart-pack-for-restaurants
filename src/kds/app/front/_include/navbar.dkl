@@ -14,7 +14,7 @@ div(class="nabvar_dkf")
 			{
 				$""
 				#!
-				if @module!="" && @module!="kds"
+				if @module!="" && @module!="kds" && @module=="vw_workspace.dkl"
 				{
 					#$
 					button(class="btn-kdf img-kdf " style="border:none" onclick="controller.redirect('#<@module>')"){
