@@ -102,6 +102,7 @@ module "lista de consultas"
     @ccxcode="select c.sys_pk as 'sys_pk',c.codigo as 'code',c.descripcion as 'description' from cconsumo c where c.codigo=@cc"
 
     @waiter="select a.codigo as 'code',a.sys_pk as 'sys_pk',a.nombre as 'nombre' from agente a where a.sys_pk=@ag"
+    @waiter_cd="select a.codigo as 'code',a.sys_pk as 'sys_pk',a.nombre as 'nombre' from agente a where a.codigo=@ag"
 
     @prodc_x_cc="select cproduccion.sys_pk as 'sys_pk', cproduccion.codigo as sku, cproduccion.descripcion as 'description', 
                 cproduccion.almacenmp as 'storemp',cproduccion.almacenpt as 'storept' from cproduccion inner join cconsumo_cproduccion_ on cproduccion.sys_pk=cconsumo_cproduccion_.icproduccion

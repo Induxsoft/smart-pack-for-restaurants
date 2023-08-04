@@ -673,7 +673,7 @@ module "lib.dk"
         ref prodc=@@(itm_details,"&prodcenter")
         new p{@"ag":@@(postData,"waiter")}
 
-        ref waiter=dbr.rec(db,@waiter,p)
+        ref waiter=dbr.rec(db,@waiter_cd,p)
         ref dataprodc=dbr.rec(db,@prodc,prodc)
 
         ref sku=@@(itm_details,"&sku")
