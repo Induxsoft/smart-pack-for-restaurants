@@ -76,7 +76,7 @@ program
  	// {
  	// 	ref itm=@item(list_dorden,i)
  	// 	do escpos.printline(@@(itm,"$cantidad")+" "+@@(itm,"$descripcion")+"-----------$ "+@@(itm,"$precio"))
-	// 	do escpos.printline("")
+		// 	do escpos.printline("")
 
  	// }
 
@@ -89,8 +89,8 @@ program
  	{
  		ref itm=@item(list_dorden,i)
 		rou=round(@@(itm,"$cantidad"),2)
-		do escpos.printline(@@(itm,"$descripcion") +"      "+ str(rou)+"       "+"PZA")
-
+		do escpos.printline("-"+@@(itm,"$descripcion") +"      "+ str(rou)+"      "+"PZA")
+		do escpos.printline(" "+@@(itm,"$especificaciones"))
 			
  	}
 
