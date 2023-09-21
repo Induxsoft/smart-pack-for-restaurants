@@ -366,12 +366,17 @@ var controller={
             break;
         }
       },
+      escape_selector:function(selector) {
+        // buscar y escapar los caracteres especiales que son válidos en un selector CSS, y garantizar que sea tratada correctamente por `querySelector`.
+        return selector.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, "\\$&");
+      },
       add_indications:function(id)
       {
         for(var s=0;s<list_requireds.length;s++)
         {
           var req=list_requireds[s];
-          var selet_req=document.querySelector(`#single_${req.name.replace(/ /g,"")}_`);
+          var reqname = this.escape_selector(req.name.replace(/ /g,""));
+          var selet_req=document.querySelector(`#single_${reqname}_`);
           if(selet_req)
             if(selet_req.value=="")
             {
@@ -444,11 +449,14 @@ var controller={
       },
       get_indications:function(name,ismultiple)
       {
-        if(ismultiple)
-          var indications=document.querySelectorAll(`.div-multiple > .div-check_${name.replace(/ /g,"")} > input`);
-        else
-          var indications=document.querySelectorAll(`.body-single > .div-single_${name.replace(/ /g,"")} > select`);
-
+        var reqname = this.escape_selector(name.replace(/ /g,""));
+        
+        if(ismultiple) {
+          var indications=document.querySelectorAll(`.div-multiple > .div-check_${reqname} > input`);
+        }
+        else {
+          var indications=document.querySelectorAll(`.body-single > .div-single_${reqname} > select`);
+        }
 
         var values=[];
         indications.forEach(function (elem,index) {
