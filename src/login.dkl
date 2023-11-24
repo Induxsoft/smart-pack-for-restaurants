@@ -23,7 +23,7 @@ module "login"
 		uid=@@(@http_context,"request/post/user")
 		pwd=@@(@http_context,"request/post/pwd")
 		success=@@(@http_context,"request/post/success")
-
+         //do dbr.setHashUnicode(@true)
 		ref db=dbr.login(qname, uid,pwd)
 
 		token=dbr.getSID(db)
