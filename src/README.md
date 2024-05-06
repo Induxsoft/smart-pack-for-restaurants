@@ -5,6 +5,7 @@ Instalación de Smart Pack For Restaurants (SPFR)
 		- fso
 		- webauth.dkl
 		- website.dkl
+  		- cookies.dkl		
 		
 		```Link de descarga:``` https://github.com/Induxsoft/dkl-web
 	- Soporte de impresión de bajo nivel y protocolo ESC/POS para Devkron
