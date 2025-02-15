@@ -24,7 +24,12 @@
     --medium-font: 1rem;
     --small-font: .8rem;
 }
-body,html{height: 100%;}
+body,html
+{
+  height: 100%;
+  padding: 0;
+  margin: 0;
+}
 body {
   font-family: 'Poppins',Arial, Helvetica, sans-serif;
 }
@@ -352,13 +357,16 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
   grid-auto-rows: 9rem;
-  gap: .7rem;
+  gap: 1.5rem;
   margin-bottom: 4rem;
   overflow: auto;
 }
+.table-selected
+{
+  border: 2px solid purple;
+}
 .card-mesas
 {
-/*  width: 100%;*/
   height: 85%;
 }
 .div-mesa_color
@@ -682,8 +690,7 @@ html{scroll-behavior: smooth;}
   align-items: center;
   gap: 6px;
 }
-.p-person{
-}
+
 .btn{
   display: inline-block;
   font-weight: 500 !important;
@@ -852,8 +859,30 @@ html{scroll-behavior: smooth;}
       border: 1px solid #eee;
       z-index: 10;
 }
-.hidde_control{
+.hidde_control
+{
     display: none !important;
+}
+
+.placeholder-glow .placeholder
+{
+  animation: placeholder-glow 2s ease-in-out infinite;
+}
+.placeholder 
+{
+  /*display: inline-block;*/
+  min-height: 1em;
+  vertical-align: middle;
+  cursor: wait;
+  background-color: currentcolor;
+  opacity: .5;
+}
+@keyframes placeholder-glow 
+{
+  50% 
+  {
+    opacity: .2;
+  }
 }
 /******************control modal**********************/
 

@@ -274,11 +274,16 @@ module "lib.dk"
     #!
     exist.table::&db,&params,&data
     {
-        params<"code">:@@(data,"table")
-        params<"waiter">:@@(data,"waiter")
+        params<"code">:trim(@@(data,"$table"))
+        params<"waiter">:trim(@@(data,"$waiter"))
+
         idtable=dbr.str(db,@exist_table,params)
 
-        if idtable!=""{do rise_error(99,"Ya existe una mesa aún sin procesar con el número de mesa indicado_.")}
+        if idtable!=""{do rise_error(99,"Ya existe una mesa aún sin procesar con el número de mesa indicado.")}
+
+        ispaid=dbr.num(db,@table_paid,params)
+        if ispaid > 0{do rise_error(500,"La cuenta de la mesa no ha sido cobrada.")}
+        
     }
 
     #!
@@ -910,7 +915,7 @@ module "lib.dk"
     printer_ordertable::&db,idtable
     {
         ref jsonmap=get.map()
-
+        
         cprod=@id_printer_tickets
         if @@(jsonmap,cprod)==""{return}
 

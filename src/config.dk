@@ -28,8 +28,8 @@ module "config.dkl"
 	@path_file_map=@path_map+"printers.map"
 	@id_printer_tickets="tickets"
 
-	@use_bdconfig=@false
-	@accept_qnames=@false
+	@use_bdconfig=@true
+	@accept_qnames=@true
 
 	new @config
 	{

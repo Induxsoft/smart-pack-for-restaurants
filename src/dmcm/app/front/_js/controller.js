@@ -1,9 +1,12 @@
 var $prodc="";
 var $line="";
-var controller={
-	    get_tables:function() {
+var controller=
+{
+	    get_tables:function() 
+      {
         var uri=`${url}pos/dinner/tables/?waiter=${waiter_key}&cc=${$cc}&zone=${zone}`;
-        model.invoke_service(uri,null,function(data) {
+        model.invoke_service(uri,null,function(data) 
+        {
           views.print_mesas(data);
         },
         function(error) {
@@ -28,7 +31,6 @@ var controller={
         
       	if(id_table<=0)
       	{
-      		// alert("La mesa no esta abierta.");
           var mesa=document.querySelector("#txttable");
           var num_people=document.querySelector("#txtnumpeople");
           num_people.value=cuantity;
@@ -37,6 +39,7 @@ var controller={
           mesa.focus();
       		return;
       	}
+
       	if(this.ismobile())
       	{
           var params=`&idt=${id_table}`;
@@ -47,12 +50,14 @@ var controller={
       		window.location.href=`./?view=vw_infocuenta${params}`;
       		return;
       	}
-      	controller.get_table(id_table);
+        views.ActiveAnimation(true);
+      	controller.get_table(id_table,e=null);
       },
-      get_table:function(id_table){
-      	
+      get_table:function(id_table)
+      {
       	var uri=`${url}pos/dinner/tables/${id_table}/`;
-      	model.invoke_service(uri,null,function(data) {
+      	model.invoke_service(uri,null,function(data) 
+        {
           views.print_ordenes(data);
         },
         function(error) {
@@ -167,14 +172,18 @@ var controller={
         //   params+="&dmtm_token="+token;
         this.open_view("newcommand",params);
       },
+      
       reopen_table:function(id_table)
       {
         var uri=`${url}pos/dinner/tables/${id_table}`;
         var data={action:"open"}
-        model.invoke_service(uri,data,function(data) {
+        model.invoke_service(uri,data,function(data) 
+        {
           views.print_ordenes(data);
+          views.PaindItem(data);
         },
-        function(error) {
+        function(error) 
+        {
           alert(error.message);
         },"PATCH",false);
 
@@ -183,10 +192,14 @@ var controller={
       {
         var uri=`${url}pos/dinner/tables/${id_table}`;
         var data={action:"close"}
-        model.invoke_service(uri,data,function(data) {
+
+        model.invoke_service(uri,data,function(data) 
+        {
           views.print_ordenes(data);
+          views.PaindItem(data);
         },
-        function(error) {
+        function(error) 
+        {
           alert(error.message);
         },"PATCH",false);
       },

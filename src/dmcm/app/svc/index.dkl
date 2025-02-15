@@ -113,12 +113,14 @@ module "index.dkl"
 				{
 					ref data=get.token(db,params,postData)
 				}
-				else{
+				else
+				{
 					do exist.table(db,params,postData)
 					ref data=open.table(db,params,postData)
 				}
 			}
-			case "PATCH"{
+			case "PATCH"
+			{
 				if @@(params,"id_table")==""{do rise_error(99,"Falta un identificador de la mesa")}
 				else if @@(postData,"action")!=""{
 					switch tolower(@@(postData,"action"))

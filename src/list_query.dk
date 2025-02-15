@@ -11,6 +11,13 @@ module "lista de consultas"
 	@exist_table="select dmnsmesa from  venta v INNER JOIN agente a ON v.iagente=a.sys_pk
                 where v.dmnsmesa=@code and v.StatusAdministrativo=1 AND a.codigo=@waiter;"
 
+    @table_paid="select ifnull(v.sys_pk,0)pk_venta from  venta v INNER JOIN agente a ON v.iagente=a.sys_pk
+                where v.dmnsmesa=@code 
+                and v.StatusAdministrativo<>3 
+                and v.statusentrega<>3
+                and trim(ifnull(v.sys_info,''))=''
+                AND a.codigo=@waiter;"
+
 	@lifespan="select hour(v.sys_dtcreated)as hours,minute(v.sys_dtcreated)as minutes,second(v.sys_dtcreated) as seconds from venta v where v.sys_pk=@sys_pk"
 	@foodbev="select cc.codigo cod_cc,cp.codigo cod_cp,cc.descripcion desc_cc,cp.descripcion desc_cp, p.codigo as sku,p.sys_pk as pkprod,q.sys_pk as sys_pk,q.descripcion as 'description',q.precio1,q.precio2,q.precio3,q.precio4,
 				q.precio5,q.i1venta,q.i2venta,q.i3venta,q.i4venta,q.unidad as unit,q.ilinea as line 

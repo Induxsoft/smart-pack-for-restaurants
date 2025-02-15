@@ -3,34 +3,93 @@ var data_foodbev=[];
 var list_orders=[];
 var list_requireds=[];
 var list_adds_dmns={};
-var views={
+var views=
+{
+      table_selected:0,
       init:function()
       {
             
       },
-      print_mesas:function(data) {
+      print_mesas:function(data) 
+      {
             var html="";
-          for (var i =0; i<data.length; i++) {
-            var itm=data[i];
-            html+=`<div class="${css_class_mesa} mesa_${itm.sys_pk}" onclick="controller.verify_size_window(\'${itm.sys_pk}\',\'${itm.code}\',${itm.available_seats})">
-                        <div class="${this.color(itm.status)} mesa_color_estatus"></div>            
-                        <div class="div-mesa_person">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
-                                    <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3Zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
-                              </svg>
-                              <p class="p-person">${itm.occupied_seats}/${itm.available_seats}</p>
-                              <div class="mesa_color ${this.flag_color(itm.flag)} mesa_color_${itm.sys_pk}"></div>
-                        </div>
-                        <div style="display:flex; align-items:center;justify-content:center; margin-top:28px;">
-                              <svg width="30" height="30" fill="#333" viewBox="0 0 37.325 24.419" xmlns="http://www.w3.org/2000/svg"><defs><clipPath clipPathUnits="userSpaceOnUse" id="prefix__a"><path d="M19.998 154.593l-5.551 8.074 10.707 7.297 4.271-6.212c-.023-.041-.02-.108.034-.182.045-.061.081-.129.12-.193a1.7 1.7 0 00.05-.097c-.019-.04-.014-.097.031-.164l.119-.172.004-.006.019-.044c.033-.087.072-.172.11-.257a2.002 2.002 0 01.206-.377l.104-.155.098-.142c.03-.048.065-.093.094-.141l.053-.094z" fill="red" stroke-width=".265"/></clipPath></defs><path d="M37.323 0L11.517.03.005 7.842l25.805-.03zM.004 9.954h2.75v14.45H.004zM23.498 9.968h2.75v14.45h-2.75zM34.575 2.557h2.75v14.45h-2.75z"/><path d="M11.454.057h2.75v14.45h-2.75z"/><path d="M0 7.839l25.786-.035.003 2.535-25.786.035z"/><path clip-path="url(#prefix__a)" transform="matrix(.82843 -.5601 .56968 .82186 -79.693 -115.26)" d="M30.058 161.652l-.001.001h.001zm-.001.001H15.144v1.489h13.794c0-.035.01-.076.034-.12a.266.266 0 01.099-.107.34.34 0 01.082-.04l.006-.006a.576.576 0 00.039-.047l.053-.075.06-.087.062-.09.063-.093.053-.077.045-.064.045-.066.04-.06.043-.06.049-.071.05-.074c.016-.024.034-.047.052-.07l.038-.047a4.061 4.061 0 00.074-.1l.029-.042a.266.266 0 01.103-.093z"/><path d="M37.321 0l-.133.001v1.714l.066.015v-.514l.003-.084.005-.062a3.624 3.624 0 00.004-.124v-.05c0-.063.015-.11.038-.144l.002-.016.004-.017V.716.713l-.001.003a.143.143 0 01.013-.048zm-.133 1.853v.194l.02-.116a.127.127 0 01.03-.066l-.05-.012z"/><path d="M36.162.001h1.159v2.542h-1.16z"/><path d="M37.09 2.618l.193-.13.037.056-.192.13z"/><path d="M37.174 2.527h.029v.03h-.03zM25.286 7.964L36.114.749l.446.653-10.827 7.215z"/></svg>
-                        </div>
-                        <div class="div-mesa_name">
-                              <a>${itm.code}</a>
-                        </div>
-                  </div>`;
+            for (var i =0; i<data.length; i++) 
+            {
+                  var itm=data[i];
+                  html+=`<div class="${css_class_mesa} mesa_${itm.sys_pk}" onclick="controller.verify_size_window(\'${itm.sys_pk}\',\'${itm.code}\',${itm.available_seats},this)">
+                              <div class="${this.color(itm.status)} mesa_color_estatus"></div>            
+                              <div class="div-mesa_person">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
+                                          <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3Zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                                    </svg>
+                                    <p class="p-person">${itm.occupied_seats}/${itm.available_seats}</p>
+                                    <div class="mesa_color ${this.flag_color(itm.flag)} mesa_color_${itm.sys_pk}"></div>
+                              </div>
+                              <div style="display:flex; align-items:center;justify-content:center; margin-top:28px;">
+                                    <svg width="30" height="30" fill="#333" viewBox="0 0 37.325 24.419" xmlns="http://www.w3.org/2000/svg"><defs><clipPath clipPathUnits="userSpaceOnUse" id="prefix__a"><path d="M19.998 154.593l-5.551 8.074 10.707 7.297 4.271-6.212c-.023-.041-.02-.108.034-.182.045-.061.081-.129.12-.193a1.7 1.7 0 00.05-.097c-.019-.04-.014-.097.031-.164l.119-.172.004-.006.019-.044c.033-.087.072-.172.11-.257a2.002 2.002 0 01.206-.377l.104-.155.098-.142c.03-.048.065-.093.094-.141l.053-.094z" fill="red" stroke-width=".265"/></clipPath></defs><path d="M37.323 0L11.517.03.005 7.842l25.805-.03zM.004 9.954h2.75v14.45H.004zM23.498 9.968h2.75v14.45h-2.75zM34.575 2.557h2.75v14.45h-2.75z"/><path d="M11.454.057h2.75v14.45h-2.75z"/><path d="M0 7.839l25.786-.035.003 2.535-25.786.035z"/><path clip-path="url(#prefix__a)" transform="matrix(.82843 -.5601 .56968 .82186 -79.693 -115.26)" d="M30.058 161.652l-.001.001h.001zm-.001.001H15.144v1.489h13.794c0-.035.01-.076.034-.12a.266.266 0 01.099-.107.34.34 0 01.082-.04l.006-.006a.576.576 0 00.039-.047l.053-.075.06-.087.062-.09.063-.093.053-.077.045-.064.045-.066.04-.06.043-.06.049-.071.05-.074c.016-.024.034-.047.052-.07l.038-.047a4.061 4.061 0 00.074-.1l.029-.042a.266.266 0 01.103-.093z"/><path d="M37.321 0l-.133.001v1.714l.066.015v-.514l.003-.084.005-.062a3.624 3.624 0 00.004-.124v-.05c0-.063.015-.11.038-.144l.002-.016.004-.017V.716.713l-.001.003a.143.143 0 01.013-.048zm-.133 1.853v.194l.02-.116a.127.127 0 01.03-.066l-.05-.012z"/><path d="M36.162.001h1.159v2.542h-1.16z"/><path d="M37.09 2.618l.193-.13.037.056-.192.13z"/><path d="M37.174 2.527h.029v.03h-.03zM25.286 7.964L36.114.749l.446.653-10.827 7.215z"/></svg>
+                              </div>
+                              <div class="div-mesa_name">
+                                    <a>${itm.code}</a>
+                              </div>
+                        </div>`;
           }
+
           body_mesas.innerHTML=html;
           event.hide_loading();
+          if(views.table_selected>0 && !controller.ismobile())
+          {
+            var element_select=document.querySelector(`.mesa_${views.table_selected}`);
+            if(element_select)views.trigger(element_select,"click");
+          }
+      },
+      PaindItem(data)
+      {
+        if(!data.sys_pk)return;
+        //mesa_
+        var element_main=document.querySelector(`.mesa_${data.sys_pk}`);
+        
+        if(!element_main)return;
+
+        // mesa_color_estatus
+        var element_status=element_main.querySelector(`.mesa_color_estatus`);
+        if(element_status)
+        {
+            element_status.classList.remove("table_available");
+            element_status.classList.remove("table_opened");
+            element_status.classList.remove("table_closed");
+            let cstts=views.color(data.status);
+            if(cstts!="")element_status.classList.add(cstts);
+        }
+        // mesa_color
+        var element_color=element_main.querySelector(`.mesa_color`);
+        if(element_color)
+        {
+            element_color.classList.remove("flag_yellow"); 
+            element_color.classList.remove("flag_green"); 
+            element_color.classList.remove("flag_orange"); 
+            element_color.classList.remove("flag_purple"); 
+            element_color.classList.remove("flag_white"); 
+
+            let flag=views.flag_color(data.flag);
+            if(flag!="")element_color.classList.add(flag);
+        }
+      },
+      trigger(elementOrSelector,eventName)
+      {
+            if (!elementOrSelector || !eventName) return;
+
+            const element = (typeof elementOrSelector === "string") ? document.querySelector(elementOrSelector) : elementOrSelector;
+            if (!element) 
+            {
+                  console.error("Elemento no encontrado.");
+                  return
+            }
+
+            const event = new Event(eventName, {
+                  bubbles: true,
+                  cancelable: true
+            });
+            element.dispatchEvent(event);
       },
       print_foodbev:function(data,lineDesc="")
       {
@@ -492,7 +551,7 @@ var views={
             if(infvnt && data.notetable=="")
                   infvnt.style.height="5rem";
             else
-                  infvnt.style.height="4rem";
+                  infvnt.style.height="5rem";
 
             if(mesa)
                   if(mesa.classList.contains("table_opened"))
@@ -515,42 +574,43 @@ var views={
                   balance:data.balance,
                   code:data.code
             }
-          for (var i =0; i<data.orders.length; i++) {
-            var itm=data.orders[i];
-            total+=itm.total;
-            var description=`<b>${itm.description}</b>`;
-            if (Number(itm.time)!=0)
-                  description+=` ${controller.lifetime(itm.time)} Tiempo.`;
-            if(Number(itm.discount)!=0)
-                  description+=`${itm.discount}`;
-            if(itm.notes!="")
-                  description+=`</br>${itm.notes}`;
-            description+=`</br><label class="fsz-12" style="color:#888;">${itm.created}</label>`;
+            for (var i =0; i<data.orders.length; i++) 
+            {
+                  var itm=data.orders[i];
+                  total+=itm.total;
+                  var description=`<b>${itm.description}</b>`;
+                  if (Number(itm.time)!=0)
+                        description+=` ${controller.lifetime(itm.time)} Tiempo.`;
+                  if(Number(itm.discount)!=0)
+                        description+=`${itm.discount}`;
+                  if(itm.notes!="")
+                        description+=`</br>${itm.notes}`;
+                  description+=`</br><label class="fsz-12" style="color:#888;">${itm.created}</label>`;
 
-            html+=`<tr>
-                  <td style="padding-bottom: 16px;">
-                        <div class="cellgrid">
-                              <div class="divplus" onclick='controller.addmore(${JSON.stringify(data_orders)},${itm.linea},"${itm.sku}")'>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
-                                          <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-                                    </svg>
-                              </div>
-                              <div class="text-center">
-                                    ${itm.quantity}
-                              </div>
-                              <div class="divminus" onclick='controller.quit_prod("${data.sys_guid}","${itm.sku}",${itm.sys_pk},${itm.pkdorden})'>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-dash" viewBox="0 0 16 16">
-                                          <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
-                                    </svg>
-                              </div>
-                        </div>                  
-                  </td>
-                  <td style="width:60%;padding-bottom: 16px;">${description}</td>
-                  <td class="text-end" style="padding-bottom: 16px; color:var(--purple);">$ ${views.format(itm.total,2,".",",")}</td>
-            </tr>`;
+                  html+=`<tr>
+                        <td style="padding-bottom: 16px;">
+                              <div class="cellgrid">
+                                    <div class="divplus" onclick='controller.addmore(${JSON.stringify(data_orders)},${itm.linea},"${itm.sku}")'>
+                                          <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                                          </svg>
+                                    </div>
+                                    <div class="text-center">
+                                          ${itm.quantity}
+                                    </div>
+                                    <div class="divminus" onclick='controller.quit_prod("${data.sys_guid}","${itm.sku}",${itm.sys_pk},${itm.pkdorden})'>
+                                          <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-dash" viewBox="0 0 16 16">
+                                                <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
+                                          </svg>
+                                    </div>
+                              </div>                  
+                        </td>
+                        <td style="width:60%;padding-bottom: 16px;">${description}</td>
+                        <td class="text-end" style="padding-bottom: 16px; color:var(--purple);">$ ${views.format(itm.total,2,".",",")}</td>
+                  </tr>`;
           }
           if(lblticket)
-          lblticket.innerHTML=data.reference;
+            lblticket.innerHTML=data.reference;
           if(lbltotal)
             lbltotal.innerHTML="$ "+views.format(data.balance,2,".",",");
          if(table_ordenes)
@@ -577,7 +637,8 @@ var views={
             }
             
            
-          }else if (data.status==1)
+          }
+          else if (data.status==1)
           {
             if(new_command)
             {
@@ -596,7 +657,7 @@ var views={
             
           }
 
-          
+          views.ActiveAnimation(false);
       },
       print_prodc:function(data)
       {
@@ -651,11 +712,38 @@ var views={
       {
             // var elem=document.querySelector("#"+id);
             var tables=document.querySelectorAll(".body-mesas div");
-            waiters.forEach(function (element,index) {
+            tables.forEach(function (element,index) {
                   element.classList.remove("table-selected");
             });
+            var id="";
+            var elm=null;
+            if (typeof e === "string")id=e;
+            else if(e.target)id=e.target.id;
+            else if(e.onclick)elm=e;
+            else id=e.id??"";
+           
+            if(id.trim()!="")elm=document.querySelector(e);
 
-            var elm=document.querySelector(e);
-            elm.classList.add("table-selected");
+            if(elm)elm.classList.add("table-selected");
+      },
+      ActiveAnimation(active=false)
+      {
+            var info_vnt=document.getElementById("info-vnt");
+            var module_nota=document.getElementById("module-nota");
+            var mol_cmmd_account=document.getElementById("mol_cmmd_account");
+            var table_orders_details=document.getElementById("table_orders_details");
+            
+            if(info_vnt)info_vnt.classList.remove("placeholder");
+            if(module_nota)module_nota.classList.remove("placeholder");
+            if(mol_cmmd_account)mol_cmmd_account.classList.remove("placeholder");
+            if(table_orders_details)table_orders_details.classList.remove("placeholder");
+
+            if(active)
+            {
+                  if(info_vnt)info_vnt.classList.add("placeholder");
+                  if(module_nota)module_nota.classList.add("placeholder");
+                  if(mol_cmmd_account)mol_cmmd_account.classList.add("placeholder");
+                  if(table_orders_details)table_orders_details.classList.add("placeholder");
+            }
       }
     };

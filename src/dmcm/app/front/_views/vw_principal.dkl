@@ -69,7 +69,7 @@ module "terminal de mesero"
 				}
 			}
 			
-			div(class="card card-info" id="card-info" style="padding:0px;pointer-events:none;opacity:.4;")
+			div(class="card card-info placeholder-glow" id="card-info" style="padding:0px;pointer-events:none;opacity:.4;")
 			{
 				div(class="body-info")
 				{
@@ -83,7 +83,7 @@ module "terminal de mesero"
 						{
 							div(class="")
 							{
-								p(id="name_table" style="height: 10%;"){"---"}br{}
+								p(id="name_table" style="height: 10%;"){"---"}
 								label{""label(id="lblticket"){"---"} }
 							}
 							div(class="mt-2 just-mgn-4 d-flex just-cont-end just-itm-center" ){""h3(id="lbltotal" style="color:var(--purple);"){"$ 0.00"} }
@@ -98,7 +98,7 @@ module "terminal de mesero"
 							p(id="lblnotavnt"){"---"}
 						}
 					}
-					div(class="card cmmd-account" style="margin-top:8px;background-color:#FFF;")
+					div(class="card cmmd-account" id="mol_cmmd_account" style="margin-top:8px;background-color:#FFF;")
 					{
 						$""
 						
@@ -133,7 +133,7 @@ module "terminal de mesero"
 							}
 						}
 					}
-					div(class="mt-2 div-table" style="padding:16px;margin-top:8px;height: 70%;background-color:#FFF;")
+					div(class="mt-2 div-table" id="table_orders_details" style="padding:16px;margin-top:8px;height: 70%;background-color:#FFF;")
 					{
 						$""
 						div(style="overflow:auto;height: 100%;")
@@ -169,11 +169,11 @@ module "terminal de mesero"
 		script
 		{
 			$'
-			$(document).ready(function(){
+			$(document).ready(function()
+			{
 				if("#<idt>"!="")
 				{
-					if(!controller.ismobile())
-					 	controller.get_table("#<idt>");
+					views.table_selected=#<idt>;
 				}
 			});
 			'
